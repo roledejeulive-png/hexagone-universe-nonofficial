@@ -101,54 +101,13 @@ export class HexagonHerosSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
     return context;
   }
 
-  /* -------------------------------------------- */
-  /*  Rendu                                       */
-  /* -------------------------------------------- */
-
-  /**
-   * L'élément racine de la feuille survit aux rendus successifs, contrairement
-   * aux parties. Rebrancher les écouteurs sans couper les précédents les
-   * empilerait, et un seul dépôt créerait autant d'Items qu'il y a eu de
-   * rendus. Le contrôleur est donc réarmé à chaque passage.
+  /*
+   * Pas de gestion de dépôt ici : ActorSheetV2 s'en charge nativement depuis la
+   * v13 — liaison du DragDrop au rendu, contrôle des permissions, délégation à
+   * _onDropItem qui crée l'Item dans l'acteur. En ajouter une seconde créait
+   * l'Item en double. Pour personnaliser, surcharger _onDropItem plutôt que
+   * poser un écouteur.
    */
-  #ecouteurs = null;
-
-  _onRender(context, options) {
-    super._onRender?.(context, options);
-    this.#ecouteurs?.abort();
-    if (!this.isEditable) return;
-
-    this.#ecouteurs = new AbortController();
-    const { signal } = this.#ecouteurs;
-    this.element.addEventListener("dragover", (event) => event.preventDefault(), { signal });
-    this.element.addEventListener("drop", this.#onDrop.bind(this), { signal });
-  }
-
-  _onClose(options) {
-    this.#ecouteurs?.abort();
-    this.#ecouteurs = null;
-    super._onClose?.(options);
-  }
-
-  /** Dépôt d'un Item venant du répertoire, d'un compendium ou d'une autre fiche. */
-  async #onDrop(event) {
-    event.preventDefault();
-
-    let data;
-    try {
-      data = JSON.parse(event.dataTransfer.getData("text/plain"));
-    } catch {
-      return;
-    }
-    if (data?.type !== "Item") return;
-
-    const item = await fromUuid(data.uuid);
-    if (!item) return;
-    // Un Item déjà porté par cet acteur n'est pas dupliqué.
-    if (item.parent === this.actor) return;
-
-    await this.actor.createEmbeddedDocuments("Item", [item.toObject()]);
-  }
 
   /* -------------------------------------------- */
   /*  Actions                                     */

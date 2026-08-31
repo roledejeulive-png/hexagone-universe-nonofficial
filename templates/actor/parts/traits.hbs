@@ -11,7 +11,7 @@
     {{#if this.items.length}}
     <ul class="hex-liste">
       {{#each this.items}}
-      <li class="hex-trait {{#if this.selectionne}}engage{{/if}}" data-item-id="{{this.id}}">
+      <li class="hex-trait draggable {{#if this.selectionne}}engage{{/if}}" data-item-id="{{this.id}}">
         <button type="button" class="hex-chip" data-action="toggleTrait" aria-pressed="{{this.selectionne}}" title="{{localize 'HEXAGON.Pool.Engager'}}">
           <span class="hex-chip-rang">{{this.rang}}</span>
         </button>

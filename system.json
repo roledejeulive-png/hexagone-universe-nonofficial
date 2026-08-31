@@ -76,7 +76,7 @@
   "secondaryTokenAttribute": "audace",
   "license": "LICENSE.txt",
   "url": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial",
-  "manifest": "https://raw.githubusercontent.com/roledejeulive-png/hexagone-universe-nonofficial/foundry-v13/system.json",
-  "download": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial/archive/refs/heads/foundry-v13.zip",
+  "manifest": "https://raw.githubusercontent.com/roledejeulive-png/hexagone-universe-nonofficial/main/system.json",
+  "download": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial/archive/refs/tags/v0.2.3.zip",
   "bugs": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial/issues"
 }

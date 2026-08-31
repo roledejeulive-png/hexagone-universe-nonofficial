@@ -50,7 +50,7 @@
     {{#if equipements.length}}
     <ul class="hex-liste">
       {{#each equipements}}
-      <li class="hex-trait" data-item-id="{{this.id}}">
+      <li class="hex-trait draggable" data-item-id="{{this.id}}">
         <span class="hex-chip statique">{{#if this.system.bonus}}{{this.system.bonus}}{{else}}·{{/if}}</span>
         <span class="hex-pas">
           <button type="button" data-action="ajusterValeur" data-champ="system.bonus" data-delta="1" title="{{localize 'HEXAGON.Valeur.Augmenter'}}">▴</button>
