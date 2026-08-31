@@ -1,0 +1,54 @@
+name: Vérification
+
+on:
+  push:
+    branches: [foundry-v13]
+  pull_request:
+
+jobs:
+  verifier:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Vérifier la syntaxe JavaScript
+        run: |
+          for fichier in $(find module -name '*.mjs'); do
+            node --check "$fichier" || exit 1
+          done
+          echo "Modules valides."
+
+      # Un JSON invalide fait disparaître le système de la liste sans message
+      # explicite : autant s'en apercevoir ici plutôt que dans Foundry.
+      - name: Vérifier les fichiers JSON
+        run: |
+          node -e '
+            const fs = require("fs");
+            const fichiers = ["system.json", "lang/fr.json", "lang/en.json"];
+            for (const f of fichiers) {
+              JSON.parse(fs.readFileSync(f, "utf8"));
+              console.log(`${f} : valide`);
+            }
+
+            const manifeste = JSON.parse(fs.readFileSync("system.json", "utf8"));
+            for (const chemin of manifeste.esmodules.concat(manifeste.styles)) {
+              if (!fs.existsSync(chemin)) throw new Error(`Fichier déclaré mais absent : ${chemin}`);
+            }
+            for (const langue of manifeste.languages) {
+              if (!fs.existsSync(langue.path)) throw new Error(`Traduction absente : ${langue.path}`);
+            }
+            console.log("Manifeste cohérent avec les fichiers présents.");
+          '
+
+      - name: Vérifier la parité des traductions
+        run: |
+          node -e '
+            const fs = require("fs");
+            const fr = Object.keys(JSON.parse(fs.readFileSync("lang/fr.json", "utf8")));
+            const en = Object.keys(JSON.parse(fs.readFileSync("lang/en.json", "utf8")));
+            const manquantes = fr.filter((c) => !en.includes(c)).concat(en.filter((c) => !fr.includes(c)));
+            if (manquantes.length) throw new Error(`Clés désynchronisées : ${manquantes.join(", ")}`);
+            console.log(`${fr.length} clés, fr et en alignés.`);
+          '

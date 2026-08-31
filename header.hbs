@@ -1,0 +1,61 @@
+<header class="hex-header">
+  <img class="hex-portrait" src="{{actor.img}}" data-action="editImage" data-edit="img" alt="{{actor.name}}" />
+
+  <div class="hex-identite">
+    <input class="hex-nom" type="text" name="name" value="{{actor.name}}" placeholder="{{localize 'HEXAGON.Champ.NomDeCode'}}" {{#unless editable}}disabled{{/unless}} />
+    <div class="hex-identite-grille">
+      <label>
+        <span>{{localize "HEXAGON.Champ.IdentiteCivile"}}</span>
+        <input type="text" name="system.identite.identiteCivile" value="{{system.identite.identiteCivile}}" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label>
+        <span>{{localize "HEXAGON.Champ.Origine"}}</span>
+        <input type="text" name="system.identite.origine" value="{{system.identite.origine}}" {{#unless editable}}disabled{{/unless}} />
+      </label>
+      <label>
+        <span>{{localize "HEXAGON.Champ.Equipe"}}</span>
+        <input type="text" name="system.identite.equipe" value="{{system.identite.equipe}}" {{#unless editable}}disabled{{/unless}} />
+      </label>
+    </div>
+  </div>
+
+  <section class="pool-console" aria-label="{{localize 'HEXAGON.Pool.Titre'}}">
+    <div class="pool-hexagone {{#if pool.vide}}vide{{/if}}">
+      <span class="pool-chiffre">{{pool.des}}</span>
+      <span class="pool-unite">{{localize "HEXAGON.Pool.Des"}}</span>
+    </div>
+
+    <div class="pool-reglages">
+      <label class="pool-champ">
+        <span>{{localize "HEXAGON.Pool.Modificateur"}}</span>
+        <input type="number" data-pool="modificateur" value="0" step="1" />
+      </label>
+      <label class="pool-champ">
+        <span>{{localize "HEXAGON.Pool.Difficulte"}}</span>
+        <select data-pool="difficulte">
+          {{#each difficultes}}
+          <option value="{{this.valeur}}">{{this.valeur}} — {{this.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+    </div>
+
+    <div class="pool-actions">
+      <button type="button" class="hex-bouton primaire" data-action="lancerPool">
+        {{localize "HEXAGON.Pool.Lancer"}}
+      </button>
+      <button type="button" class="hex-bouton discret" data-action="viderPool">
+        {{localize "HEXAGON.Pool.Vider"}}
+      </button>
+    </div>
+
+    <p class="pool-detail">
+      {{#if pool.vide}}
+        {{localize "HEXAGON.Pool.Aide"}}
+      {{else}}
+        {{#each pool.detail}}<span class="pool-tag">{{this.nom}} {{this.rang}}</span>{{/each}}
+        {{#each pool.specialites}}<span class="pool-tag spec">★ {{this}}</span>{{/each}}
+      {{/if}}
+    </p>
+  </section>
+</header>

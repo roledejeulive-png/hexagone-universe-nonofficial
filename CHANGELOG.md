@@ -1,5 +1,10 @@
 # Journal des versions
 
+## 0.1.2 — build v13
+
+- Correction : déposer un Item sur une feuille de personnage en créait deux. `ActorSheetV2` gère nativement le glisser-déposer depuis la v13 ; le gestionnaire ajouté par le système faisait double emploi et a été retiré.
+- Les lignes de Traits et d'équipement sont désormais glissables : tri interne et copie vers une autre fiche fonctionnent sans code supplémentaire.
+
 ## 0.1.1 — build v13
 
 - Correction : déposer un Item sur une feuille de personnage en créait plusieurs. Les écouteurs de dépôt s'empilaient à chaque rendu de la feuille au lieu d'être remplacés.

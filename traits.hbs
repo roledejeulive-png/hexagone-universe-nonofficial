@@ -1,0 +1,44 @@
+<section class="hex-panneau {{#if actif}}actif{{/if}}" data-panneau="traits">
+  {{#each groupes}}
+  <div class="hex-groupe" data-groupe="{{this.type}}">
+    <div class="hex-groupe-titre">
+      <h2>{{this.label}}</h2>
+      <button type="button" class="hex-bouton discret" data-action="creerItem" data-type="{{this.type}}">
+        {{localize "HEXAGON.Item.Ajouter"}}
+      </button>
+    </div>
+
+    {{#if this.items.length}}
+    <ul class="hex-liste">
+      {{#each this.items}}
+      <li class="hex-trait draggable {{#if this.selectionne}}engage{{/if}}" data-item-id="{{this.id}}">
+        <button type="button" class="hex-chip" data-action="toggleTrait" aria-pressed="{{this.selectionne}}" title="{{localize 'HEXAGON.Pool.Engager'}}">
+          <span class="hex-chip-rang">{{this.rang}}</span>
+        </button>
+        <span class="hex-pas">
+          <button type="button" data-action="ajusterValeur" data-champ="system.rang" data-delta="1" title="{{localize 'HEXAGON.Valeur.Augmenter'}}">▴</button>
+          <button type="button" data-action="ajusterValeur" data-champ="system.rang" data-delta="-1" title="{{localize 'HEXAGON.Valeur.Diminuer'}}">▾</button>
+        </span>
+        <span class="hex-trait-nom">{{this.name}}</span>
+        {{#if this.cout}}<span class="hex-cout">−{{this.cout}} {{localize "HEXAGON.Champ.EnergieCourt"}}</span>{{/if}}
+        <span class="hex-trait-outils">
+          <button type="button" data-action="lancerTrait" title="{{localize 'HEXAGON.Jet.Seul'}}">⚄</button>
+          <button type="button" data-action="editerItem" title="{{localize 'HEXAGON.Item.Editer'}}">✎</button>
+          <button type="button" data-action="supprimerItem" title="{{localize 'HEXAGON.Item.Supprimer'}}">✕</button>
+        </span>
+        {{#if this.specialites.length}}
+        <span class="hex-specialites">
+          {{#each this.specialites}}
+          <button type="button" class="hex-spec {{#if this.active}}active{{/if}}" data-action="toggleSpecialite" data-cle="{{this.cle}}" aria-pressed="{{this.active}}" title="{{localize 'HEXAGON.Pool.Specialite'}}">{{this.nom}}</button>
+          {{/each}}
+        </span>
+        {{/if}}
+      </li>
+      {{/each}}
+    </ul>
+    {{else}}
+    <p class="hex-vide">{{localize "HEXAGON.Item.Aucun"}}</p>
+    {{/if}}
+  </div>
+  {{/each}}
+</section>

@@ -1,0 +1,59 @@
+name: Publier une version
+
+# Branche foundry-v13 : les tags sont préfixés pour ne pas se mélanger
+# avec ceux de la branche v12 (« git tag v13-0.1.0 »).
+on:
+  push:
+    tags:
+      - "v13-*"
+
+permissions:
+  contents: write
+
+jobs:
+  publier:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Déduire la version depuis le tag
+        id: version
+        run: echo "numero=${GITHUB_REF_NAME#v13-}" >> "$GITHUB_OUTPUT"
+
+      # Le manifeste publié doit porter le numéro de version du tag et pointer
+      # vers l'archive de CETTE version : c'est ce qui permet à Foundry et à la
+      # Forge de détecter les mises à jour.
+      - name: Injecter version et URLs dans le manifeste
+        env:
+          VERSION: ${{ steps.version.outputs.numero }}
+        run: |
+          node -e '
+            const fs = require("fs");
+            const version = process.env.VERSION;
+            const depot = process.env.GITHUB_REPOSITORY;
+            const manifeste = JSON.parse(fs.readFileSync("system.json", "utf8"));
+            manifeste.version = version;
+            manifeste.url = `https://github.com/${depot}`;
+            manifeste.manifest = `https://raw.githubusercontent.com/${depot}/foundry-v13/system.json`;
+            manifeste.download = `https://github.com/${depot}/releases/download/v13-${version}/hexagon-universe.zip`;
+            fs.writeFileSync("system.json", JSON.stringify(manifeste, null, 2) + "\n");
+            console.log(`Manifeste préparé pour la version ${version}`);
+          '
+
+      # L'archive doit contenir system.json à sa racine, sans dossier
+      # intermédiaire : Foundry refuse une arborescence imbriquée.
+      - name: Construire l'archive
+        run: |
+          zip -r hexagon-universe.zip . \
+            --exclude ".git/*" ".github/*" "*.zip"
+          unzip -l hexagon-universe.zip | head -20
+
+      - name: Publier la release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          files: |
+            system.json
+            hexagon-universe.zip

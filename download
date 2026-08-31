@@ -1,0 +1,14 @@
+# Archives produites localement ou par le workflow
+*.zip
+
+# Systèmes d'exploitation
+.DS_Store
+Thumbs.db
+
+# Éditeurs
+.vscode/
+.idea/
+*.swp
+
+# Dépendances éventuelles (aucune pour l'instant)
+node_modules/
