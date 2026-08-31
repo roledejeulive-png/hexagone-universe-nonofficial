@@ -1,30 +1,141 @@
 import { HEXAGON } from "../config.mjs";
-import { construirePool, lancerPool } from "../dice/pool.mjs";
+import { ns } from "../helpers.mjs";
+import { construirePool } from "../dice/pool.mjs";
+
+const { HandlebarsApplicationMixin } = foundry.applications.api;
+const { ActorSheetV2 } = foundry.applications.sheets;
 
 /**
- * Feuille du héros (API v1 : getData + activateListeners).
- * La sélection de Traits et de spécialités est un état d'interface : elle vit
- * dans la feuille, pas dans le document, et repart à zéro à chaque ouverture.
+ * Feuille du héros. La sélection de Traits vit dans la feuille (état d'interface),
+ * pas dans le document : elle est remise à zéro à chaque ouverture.
  */
-export class HexagonHerosSheet extends ActorSheet {
-  /** @type {Set<string>} ids des Traits engagés. */
+export class HexagonHerosSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
+  /** @type {Set<string>} ids des Traits actuellement engagés dans le pool. */
   #selection = new Set();
   /** @type {Set<string>} clés « itemId|nom de spécialité » engagées. */
   #specialites = new Set();
 
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["hexagon", "sheet", "acteur", "heros"],
-      template: `${HEXAGON.path}/templates/actor/heros.hbs`,
-      width: 780,
-      height: 700,
-      submitOnChange: true,
-      closeOnSubmit: false,
-      tabs: [{ navSelector: ".hex-onglets", contentSelector: ".hex-corps", initial: "traits" }]
+  static DEFAULT_OPTIONS = {
+    classes: ["hexagon", "sheet", "acteur", "heros"],
+    position: { width: 780, height: 700 },
+    window: { resizable: true },
+    form: { submitOnChange: true, closeOnSubmit: false },
+    actions: {
+      selectTab: HexagonHerosSheet.#onSelectTab,
+      toggleTrait: HexagonHerosSheet.#onToggleTrait,
+      toggleSpecialite: HexagonHerosSheet.#onToggleSpecialite,
+      viderPool: HexagonHerosSheet.#onViderPool,
+      lancerPool: HexagonHerosSheet.#onLancerPool,
+      creerItem: HexagonHerosSheet.#onCreerItem,
+      editerItem: HexagonHerosSheet.#onEditerItem,
+      supprimerItem: HexagonHerosSheet.#onSupprimerItem,
+      lancerTrait: HexagonHerosSheet.#onLancerTrait,
+      ajusterValeur: HexagonHerosSheet.#onAjusterValeur,
+      ajusterActeur: HexagonHerosSheet.#onAjusterActeur
+    }
+  };
+
+  static PARTS = {
+    header: { template: `${HEXAGON.path}/templates/actor/parts/header.hbs` },
+    nav: { template: `${HEXAGON.path}/templates/actor/parts/nav.hbs` },
+    traits: { template: `${HEXAGON.path}/templates/actor/parts/traits.hbs` },
+    etat: { template: `${HEXAGON.path}/templates/actor/parts/etat.hbs` },
+    notes: { template: `${HEXAGON.path}/templates/actor/parts/notes.hbs` }
+  };
+
+  tabGroups = { primary: "traits" };
+
+  /* -------------------------------------------- */
+  /*  Contexte                                    */
+  /* -------------------------------------------- */
+
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    const actor = this.actor;
+    const selection = [...this.#selection].map((id) => actor.items.get(id)).filter(Boolean);
+    const specialites = this.#specialitesActives();
+    const pool = construirePool(selection, 0, specialites.length);
+
+    return Object.assign(context, {
+      actor,
+      system: actor.system,
+      editable: this.isEditable,
+      tab: this.tabGroups.primary,
+      config: HEXAGON,
+      groupes: Object.entries(actor.traitsParType).map(([type, items]) => ({
+        type,
+        label: game.i18n.localize(HEXAGON.typesItems[type]),
+        items: items.map((i) => ({
+          id: i.id,
+          name: i.name,
+          img: i.img,
+          rang: i.system.rang,
+          cout: i.system.cout ?? 0,
+          selectionne: this.#selection.has(i.id),
+          specialites: (i.system.listeSpecialites ?? []).map((nom) => ({
+            nom,
+            cle: `${i.id}|${nom}`,
+            active: this.#specialites.has(`${i.id}|${nom}`)
+          }))
+        }))
+      })),
+      equipements: actor.items.filter((i) => i.type === "equipement"),
+      pool: {
+        des: pool.des,
+        vide: this.#selection.size === 0,
+        detail: pool.detail,
+        specialites,
+        auto: specialites.length * HEXAGON.specialite.reussitesOffertes
+      },
+      difficultes: Object.entries(HEXAGON.difficultes).map(([valeur, cle]) => ({
+        valeur: Number(valeur),
+        label: game.i18n.localize(cle)
+      }))
     });
   }
 
+  /** Marque l'onglet actif sur les parties du corps de la feuille. */
+  async _preparePartContext(partId, context) {
+    context.partId = partId;
+    context.actif = this.tabGroups.primary === partId;
+    return context;
+  }
+
   /* -------------------------------------------- */
+  /*  Rendu                                       */
+  /* -------------------------------------------- */
+
+  _onRender(context, options) {
+    super._onRender?.(context, options);
+    if (!this.isEditable) return;
+    this.element.addEventListener("dragover", (event) => event.preventDefault());
+    this.element.addEventListener("drop", this.#onDrop.bind(this));
+  }
+
+  /** Dépose d'un Item venant du répertoire, d'un compendium ou d'une autre fiche. */
+  async #onDrop(event) {
+    event.preventDefault();
+    let data;
+    try {
+      data = JSON.parse(event.dataTransfer.getData("text/plain"));
+    } catch {
+      return;
+    }
+    if (data?.type !== "Item") return;
+    const item = await fromUuid(data.uuid);
+    if (!item) return;
+    if (item.parent === this.actor) return;
+    await this.actor.createEmbeddedDocuments("Item", [item.toObject()]);
+  }
+
+  /* -------------------------------------------- */
+  /*  Actions                                     */
+  /* -------------------------------------------- */
+
+  static #onSelectTab(event, target) {
+    this.tabGroups.primary = target.dataset.tab;
+    this.render();
+  }
 
   /** Spécialités réellement applicables : Trait engagé et spécialité toujours définie. */
   #specialitesActives() {
@@ -39,74 +150,6 @@ export class HexagonHerosSheet extends ActorSheet {
     return noms;
   }
 
-  getData(options) {
-    const context = super.getData(options);
-    const actor = this.actor;
-    const selection = [...this.#selection].map((id) => actor.items.get(id)).filter(Boolean);
-    const specialites = this.#specialitesActives();
-    const pool = construirePool(selection, 0, specialites.length);
-
-    context.system = actor.system;
-    context.config = HEXAGON;
-    context.groupes = Object.entries(actor.traitsParType).map(([type, items]) => ({
-      type,
-      label: game.i18n.localize(HEXAGON.typesItems[type]),
-      items: items.map((i) => ({
-        id: i.id,
-        name: i.name,
-        img: i.img,
-        rang: i.system.rang,
-        cout: i.system.cout ?? 0,
-        selectionne: this.#selection.has(i.id),
-        specialites: (i.system.listeSpecialites ?? []).map((nom) => ({
-          nom,
-          cle: `${i.id}|${nom}`,
-          active: this.#specialites.has(`${i.id}|${nom}`)
-        }))
-      }))
-    }));
-    context.equipements = actor.items.filter((i) => i.type === "equipement");
-    context.pool = {
-      des: pool.des,
-      vide: this.#selection.size === 0,
-      detail: pool.detail,
-      specialites,
-      auto: specialites.length * HEXAGON.specialite.reussitesOffertes
-    };
-    context.difficultes = Object.entries(HEXAGON.difficultes).map(([valeur, cle]) => ({
-      valeur: Number(valeur),
-      label: game.i18n.localize(cle)
-    }));
-    return context;
-  }
-
-  /* -------------------------------------------- */
-
-  activateListeners(html) {
-    super.activateListeners(html);
-    if (!this.isEditable) return;
-
-    html.find("[data-hex='toggleTrait']").on("click", this.#onToggleTrait.bind(this));
-    html.find("[data-hex='toggleSpecialite']").on("click", this.#onToggleSpecialite.bind(this));
-    html.find("[data-hex='viderPool']").on("click", () => {
-      this.#selection.clear();
-      this.#specialites.clear();
-      this.render();
-    });
-    html.find("[data-hex='lancerPool']").on("click", this.#onLancerPool.bind(this));
-    html.find("[data-hex='creerItem']").on("click", this.#onCreerItem.bind(this));
-    html.find("[data-hex='editerItem']").on("click", this.#onEditerItem.bind(this));
-    html.find("[data-hex='supprimerItem']").on("click", this.#onSupprimerItem.bind(this));
-    html.find("[data-hex='lancerTrait']").on("click", this.#onLancerTrait.bind(this));
-    html.find("[data-hex='ajuster']").on("click", this.#onAjuster.bind(this));
-    html.find("[data-hex='ajusterActeur']").on("click", this.#onAjusterActeur.bind(this));
-  }
-
-  /** Id de l'Item porté par la ligne cliquée. */
-  #itemId(event) {
-    return event.currentTarget.closest("[data-item-id]")?.dataset.itemId;
-  }
-
   /** Retire de la sélection les spécialités rattachées à un Trait donné. */
   #purgerSpecialites(itemId) {
     for (const cle of [...this.#specialites]) {
@@ -114,9 +157,8 @@ export class HexagonHerosSheet extends ActorSheet {
     }
   }
 
-  #onToggleTrait(event) {
-    event.preventDefault();
-    const id = this.#itemId(event);
+  static #onToggleTrait(event, target) {
+    const id = target.closest("[data-item-id]")?.dataset.itemId;
     if (!id) return;
     if (this.#selection.has(id)) {
       this.#selection.delete(id);
@@ -128,9 +170,8 @@ export class HexagonHerosSheet extends ActorSheet {
   }
 
   /** Engager une spécialité engage aussi son Talent : les deux vont ensemble. */
-  #onToggleSpecialite(event) {
-    event.preventDefault();
-    const cle = event.currentTarget.dataset.cle;
+  static #onToggleSpecialite(event, target) {
+    const cle = target.dataset.cle;
     if (!cle) return;
     if (this.#specialites.has(cle)) {
       this.#specialites.delete(cle);
@@ -141,11 +182,16 @@ export class HexagonHerosSheet extends ActorSheet {
     this.render();
   }
 
-  async #onLancerPool(event) {
-    event.preventDefault();
-    const console_ = event.currentTarget.closest(".pool-console");
-    const modificateur = Number(console_?.querySelector("[data-pool='modificateur']")?.value ?? 0);
-    const difficulte = Number(console_?.querySelector("[data-pool='difficulte']")?.value ?? 1);
+  static #onViderPool() {
+    this.#selection.clear();
+    this.#specialites.clear();
+    this.render();
+  }
+
+  static async #onLancerPool(event, target) {
+    const form = target.closest(".pool-console");
+    const modificateur = Number(form?.querySelector("[data-pool='modificateur']")?.value ?? 0);
+    const difficulte = Number(form?.querySelector("[data-pool='difficulte']")?.value ?? 1);
     await this.actor.lancerTraits({
       traitIds: [...this.#selection],
       specialites: this.#specialitesActives(),
@@ -154,9 +200,8 @@ export class HexagonHerosSheet extends ActorSheet {
     });
   }
 
-  async #onCreerItem(event) {
-    event.preventDefault();
-    const type = event.currentTarget.dataset.type;
+  static async #onCreerItem(event, target) {
+    const type = target.dataset.type;
     const nom = game.i18n.format("HEXAGON.Item.Nouveau", {
       type: game.i18n.localize(HEXAGON.typesItems[type])
     });
@@ -164,18 +209,17 @@ export class HexagonHerosSheet extends ActorSheet {
     item?.sheet.render(true);
   }
 
-  #onEditerItem(event) {
-    event.preventDefault();
-    this.actor.items.get(this.#itemId(event))?.sheet.render(true);
+  static #onEditerItem(event, target) {
+    const id = target.closest("[data-item-id]")?.dataset.itemId;
+    this.actor.items.get(id)?.sheet.render(true);
   }
 
-  async #onSupprimerItem(event) {
-    event.preventDefault();
-    const id = this.#itemId(event);
+  static async #onSupprimerItem(event, target) {
+    const id = target.closest("[data-item-id]")?.dataset.itemId;
     const item = this.actor.items.get(id);
     if (!item) return;
-    const confirme = await Dialog.confirm({
-      title: game.i18n.localize("HEXAGON.Item.SupprimerTitre"),
+    const confirme = await foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.localize("HEXAGON.Item.SupprimerTitre") },
       content: `<p>${game.i18n.format("HEXAGON.Item.SupprimerQuestion", { nom: item.name })}</p>`
     });
     if (!confirme) return;
@@ -184,9 +228,9 @@ export class HexagonHerosSheet extends ActorSheet {
     await item.delete();
   }
 
-  async #onLancerTrait(event) {
-    event.preventDefault();
-    await this.actor.items.get(this.#itemId(event))?.lancer();
+  static async #onLancerTrait(event, target) {
+    const id = target.closest("[data-item-id]")?.dataset.itemId;
+    await this.actor.items.get(id)?.lancer();
   }
 
   /**
@@ -194,14 +238,13 @@ export class HexagonHerosSheet extends ActorSheet {
    * La borne haute dépend du champ : rang maximum du type pour un Trait,
    * plafond des dés d'équipement sinon.
    */
-  async #onAjuster(event) {
-    event.preventDefault();
-    const bouton = event.currentTarget;
-    const item = this.actor.items.get(this.#itemId(event));
+  static async #onAjusterValeur(event, target) {
+    const id = target.closest("[data-item-id]")?.dataset.itemId;
+    const item = this.actor.items.get(id);
     if (!item) return;
 
-    const champ = bouton.dataset.champ ?? "system.rang";
-    const delta = Number(bouton.dataset.delta ?? 1);
+    const champ = target.dataset.champ ?? "system.rang";
+    const delta = Number(target.dataset.delta ?? 1);
     const actuel = Number(foundry.utils.getProperty(item, champ) ?? 0);
     const plafond = champ === "system.rang" ? HEXAGON.rangMaxDe(item.type) : HEXAGON.rangMax.equipement;
     const valeur = Math.clamp(actuel + delta, 0, plafond);
@@ -217,72 +260,75 @@ export class HexagonHerosSheet extends ActorSheet {
    * Ajuste une jauge de l'acteur (Énergie, Audace) sans passer par le champ.
    * La valeur reste comprise entre 0 et le maximum déclaré de la jauge.
    */
-  async #onAjusterActeur(event) {
-    event.preventDefault();
-    const bouton = event.currentTarget;
-    const champ = bouton.dataset.champ;
+  static async #onAjusterActeur(event, target) {
+    const champ = target.dataset.champ;
     if (!champ) return;
-    const delta = Number(bouton.dataset.delta ?? 1);
+    const delta = Number(target.dataset.delta ?? 1);
     const actuel = Number(foundry.utils.getProperty(this.actor, champ) ?? 0);
     const plafond = Number(foundry.utils.getProperty(this.actor, champ.replace(/\.value$/, ".max")) ?? Infinity);
     const valeur = Math.clamp(actuel + delta, 0, plafond);
     if (valeur === actuel) return;
-
     await this.actor.update({ [champ]: valeur });
   }
 }
 
 /** Feuille allégée pour les figurants : un pool par défaut, pas de sélecteur. */
-export class HexagonFigurantSheet extends ActorSheet {
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["hexagon", "sheet", "acteur", "figurant"],
-      template: `${HEXAGON.path}/templates/actor/figurant.hbs`,
-      width: 520,
-      height: 480,
-      submitOnChange: true,
-      closeOnSubmit: false
+export class HexagonFigurantSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
+  static DEFAULT_OPTIONS = {
+    classes: ["hexagon", "sheet", "acteur", "figurant"],
+    position: { width: 520, height: 480 },
+    window: { resizable: true },
+    form: { submitOnChange: true, closeOnSubmit: false },
+    actions: {
+      lancerDefaut: HexagonFigurantSheet.#onLancerDefaut,
+      ajusterActeur: HexagonFigurantSheet.#onAjusterActeur
+    }
+  };
+
+  static PARTS = {
+    corps: { template: `${HEXAGON.path}/templates/actor/figurant.hbs` }
+  };
+
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    return Object.assign(context, {
+      actor: this.actor,
+      system: this.actor.system,
+      editable: this.isEditable,
+      difficultes: Object.entries(HEXAGON.difficultes).map(([valeur, cle]) => ({
+        valeur: Number(valeur),
+        label: game.i18n.localize(cle)
+      }))
     });
   }
 
-  getData(options) {
-    const context = super.getData(options);
-    context.system = this.actor.system;
-    context.difficultes = Object.entries(HEXAGON.difficultes).map(([valeur, cle]) => ({
-      valeur: Number(valeur),
-      label: game.i18n.localize(cle)
-    }));
-    return context;
+  /** Même ajustement de jauge que sur la feuille de héros. */
+  static async #onAjusterActeur(event, target) {
+    const champ = target.dataset.champ;
+    if (!champ) return;
+    const delta = Number(target.dataset.delta ?? 1);
+    const actuel = Number(foundry.utils.getProperty(this.actor, champ) ?? 0);
+    const plafond = Number(foundry.utils.getProperty(this.actor, champ.replace(/\.value$/, ".max")) ?? Infinity);
+    const valeur = Math.clamp(actuel + delta, 0, plafond);
+    if (valeur === actuel) return;
+    await this.actor.update({ [champ]: valeur });
   }
 
-  activateListeners(html) {
-    super.activateListeners(html);
-    if (!this.isEditable) return;
-    html.find("[data-hex='ajusterActeur']").on("click", async (event) => {
-      event.preventDefault();
-      const champ = event.currentTarget.dataset.champ;
-      const delta = Number(event.currentTarget.dataset.delta ?? 1);
-      const actuel = Number(foundry.utils.getProperty(this.actor, champ) ?? 0);
-      const plafond = Number(foundry.utils.getProperty(this.actor, champ.replace(/\.value$/, ".max")) ?? Infinity);
-      const valeur = Math.clamp(actuel + delta, 0, plafond);
-      if (valeur !== actuel) await this.actor.update({ [champ]: valeur });
-    });
-    html.find("[data-hex='lancerDefaut']").on("click", async (event) => {
-      event.preventDefault();
-      const difficulte = Number(html.find("[data-pool='difficulte']").val() ?? 1);
-      await lancerPool({
-        des: this.actor.system.poolDefaut,
-        difficulte,
-        label: this.actor.system.role || this.actor.name,
-        actor: this.actor
-      });
+  static async #onLancerDefaut(event, target) {
+    const difficulte = Number(this.element.querySelector("[data-pool='difficulte']")?.value ?? 1);
+    const { lancerPool } = await import("../dice/pool.mjs");
+    await lancerPool({
+      des: this.actor.system.poolDefaut,
+      difficulte,
+      label: this.actor.system.role || this.actor.name,
+      actor: this.actor
     });
   }
 }
 
-/** Enregistrement des feuilles. */
+/** Enregistrement des feuilles auprès du collectionneur d'acteurs. */
 export function registerActorSheets() {
-  Actors.unregisterSheet("core", ActorSheet);
+  const { Actors } = ns();
   Actors.registerSheet(HEXAGON.id, HexagonHerosSheet, {
     types: ["heros"],
     makeDefault: true,

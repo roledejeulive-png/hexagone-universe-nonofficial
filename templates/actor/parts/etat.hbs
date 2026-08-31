@@ -1,12 +1,12 @@
-<section class="tab hex-panneau" data-tab="etat" data-group="primary">
+<section class="hex-panneau {{#if actif}}actif{{/if}}" data-panneau="etat">
   <div class="hex-jauges">
     <label class="hex-jauge">
       <span>{{localize "HEXAGON.Champ.Energie"}}</span>
       <span class="hex-paire">
         <input type="number" name="system.energie.value" value="{{system.energie.value}}" {{#unless editable}}disabled{{/unless}} />
         <span class="hex-pas">
-          <button type="button" data-hex="ajusterActeur" data-champ="system.energie.value" data-delta="1" title="{{localize 'HEXAGON.Valeur.Augmenter'}}">▴</button>
-          <button type="button" data-hex="ajusterActeur" data-champ="system.energie.value" data-delta="-1" title="{{localize 'HEXAGON.Valeur.Diminuer'}}">▾</button>
+          <button type="button" data-action="ajusterActeur" data-champ="system.energie.value" data-delta="1" title="{{localize 'HEXAGON.Valeur.Augmenter'}}">▴</button>
+          <button type="button" data-action="ajusterActeur" data-champ="system.energie.value" data-delta="-1" title="{{localize 'HEXAGON.Valeur.Diminuer'}}">▾</button>
         </span>
         <em>/</em>
         <input type="number" name="system.energie.max" value="{{system.energie.max}}" {{#unless editable}}disabled{{/unless}} />
@@ -18,8 +18,8 @@
       <span class="hex-paire">
         <input type="number" name="system.audace.value" value="{{system.audace.value}}" {{#unless editable}}disabled{{/unless}} />
         <span class="hex-pas">
-          <button type="button" data-hex="ajusterActeur" data-champ="system.audace.value" data-delta="1" title="{{localize 'HEXAGON.Valeur.Augmenter'}}">▴</button>
-          <button type="button" data-hex="ajusterActeur" data-champ="system.audace.value" data-delta="-1" title="{{localize 'HEXAGON.Valeur.Diminuer'}}">▾</button>
+          <button type="button" data-action="ajusterActeur" data-champ="system.audace.value" data-delta="1" title="{{localize 'HEXAGON.Valeur.Augmenter'}}">▴</button>
+          <button type="button" data-action="ajusterActeur" data-champ="system.audace.value" data-delta="-1" title="{{localize 'HEXAGON.Valeur.Diminuer'}}">▾</button>
         </span>
         <em>/</em>
         <input type="number" name="system.audace.max" value="{{system.audace.max}}" {{#unless editable}}disabled{{/unless}} />
@@ -42,7 +42,7 @@
   <div class="hex-groupe">
     <div class="hex-groupe-titre">
       <h2>{{localize "HEXAGON.Type.Equipement"}}</h2>
-      <button type="button" class="hex-bouton discret" data-hex="creerItem" data-type="equipement">
+      <button type="button" class="hex-bouton discret" data-action="creerItem" data-type="equipement">
         {{localize "HEXAGON.Item.Ajouter"}}
       </button>
     </div>
@@ -53,13 +53,13 @@
       <li class="hex-trait" data-item-id="{{this.id}}">
         <span class="hex-chip statique">{{#if this.system.bonus}}{{this.system.bonus}}{{else}}·{{/if}}</span>
         <span class="hex-pas">
-          <button type="button" data-hex="ajuster" data-champ="system.bonus" data-delta="1" title="{{localize 'HEXAGON.Valeur.Augmenter'}}">▴</button>
-          <button type="button" data-hex="ajuster" data-champ="system.bonus" data-delta="-1" title="{{localize 'HEXAGON.Valeur.Diminuer'}}">▾</button>
+          <button type="button" data-action="ajusterValeur" data-champ="system.bonus" data-delta="1" title="{{localize 'HEXAGON.Valeur.Augmenter'}}">▴</button>
+          <button type="button" data-action="ajusterValeur" data-champ="system.bonus" data-delta="-1" title="{{localize 'HEXAGON.Valeur.Diminuer'}}">▾</button>
         </span>
         <span class="hex-trait-nom">{{this.name}} <em>×{{this.system.quantite}}</em></span>
         <span class="hex-trait-outils">
-          <button type="button" data-hex="editerItem" title="{{localize 'HEXAGON.Item.Editer'}}">✎</button>
-          <button type="button" data-hex="supprimerItem" title="{{localize 'HEXAGON.Item.Supprimer'}}">✕</button>
+          <button type="button" data-action="editerItem" title="{{localize 'HEXAGON.Item.Editer'}}">✎</button>
+          <button type="button" data-action="supprimerItem" title="{{localize 'HEXAGON.Item.Supprimer'}}">✕</button>
         </span>
       </li>
       {{/each}}

@@ -1,9 +1,9 @@
-<section class="tab hex-panneau" data-tab="traits" data-group="primary">
+<section class="hex-panneau {{#if actif}}actif{{/if}}" data-panneau="traits">
   {{#each groupes}}
   <div class="hex-groupe" data-groupe="{{this.type}}">
     <div class="hex-groupe-titre">
       <h2>{{this.label}}</h2>
-      <button type="button" class="hex-bouton discret" data-hex="creerItem" data-type="{{this.type}}">
+      <button type="button" class="hex-bouton discret" data-action="creerItem" data-type="{{this.type}}">
         {{localize "HEXAGON.Item.Ajouter"}}
       </button>
     </div>
@@ -12,24 +12,24 @@
     <ul class="hex-liste">
       {{#each this.items}}
       <li class="hex-trait {{#if this.selectionne}}engage{{/if}}" data-item-id="{{this.id}}">
-        <button type="button" class="hex-chip" data-hex="toggleTrait" aria-pressed="{{this.selectionne}}" title="{{localize 'HEXAGON.Pool.Engager'}}">
+        <button type="button" class="hex-chip" data-action="toggleTrait" aria-pressed="{{this.selectionne}}" title="{{localize 'HEXAGON.Pool.Engager'}}">
           <span class="hex-chip-rang">{{this.rang}}</span>
         </button>
         <span class="hex-pas">
-          <button type="button" data-hex="ajuster" data-champ="system.rang" data-delta="1" title="{{localize 'HEXAGON.Valeur.Augmenter'}}">▴</button>
-          <button type="button" data-hex="ajuster" data-champ="system.rang" data-delta="-1" title="{{localize 'HEXAGON.Valeur.Diminuer'}}">▾</button>
+          <button type="button" data-action="ajusterValeur" data-champ="system.rang" data-delta="1" title="{{localize 'HEXAGON.Valeur.Augmenter'}}">▴</button>
+          <button type="button" data-action="ajusterValeur" data-champ="system.rang" data-delta="-1" title="{{localize 'HEXAGON.Valeur.Diminuer'}}">▾</button>
         </span>
         <span class="hex-trait-nom">{{this.name}}</span>
         {{#if this.cout}}<span class="hex-cout">−{{this.cout}} {{localize "HEXAGON.Champ.EnergieCourt"}}</span>{{/if}}
         <span class="hex-trait-outils">
-          <button type="button" data-hex="lancerTrait" title="{{localize 'HEXAGON.Jet.Seul'}}">⚄</button>
-          <button type="button" data-hex="editerItem" title="{{localize 'HEXAGON.Item.Editer'}}">✎</button>
-          <button type="button" data-hex="supprimerItem" title="{{localize 'HEXAGON.Item.Supprimer'}}">✕</button>
+          <button type="button" data-action="lancerTrait" title="{{localize 'HEXAGON.Jet.Seul'}}">⚄</button>
+          <button type="button" data-action="editerItem" title="{{localize 'HEXAGON.Item.Editer'}}">✎</button>
+          <button type="button" data-action="supprimerItem" title="{{localize 'HEXAGON.Item.Supprimer'}}">✕</button>
         </span>
         {{#if this.specialites.length}}
         <span class="hex-specialites">
           {{#each this.specialites}}
-          <button type="button" class="hex-spec {{#if this.active}}active{{/if}}" data-hex="toggleSpecialite" data-cle="{{this.cle}}" aria-pressed="{{this.active}}" title="{{localize 'HEXAGON.Pool.Specialite'}}">{{this.nom}}</button>
+          <button type="button" class="hex-spec {{#if this.active}}active{{/if}}" data-action="toggleSpecialite" data-cle="{{this.cle}}" aria-pressed="{{this.active}}" title="{{localize 'HEXAGON.Pool.Specialite'}}">{{this.nom}}</button>
           {{/each}}
         </span>
         {{/if}}

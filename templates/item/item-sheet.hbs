@@ -1,6 +1,6 @@
-<form class="{{cssClass}} hexagon-form hex-objet" autocomplete="off">
+<div class="hex-objet">
   <header class="hex-header compact">
-    <img class="hex-portrait petit" src="{{item.img}}" data-edit="img" alt="{{item.name}}" />
+    <img class="hex-portrait petit" src="{{item.img}}" data-action="editImage" data-edit="img" alt="{{item.name}}" />
     <div class="hex-identite">
       <span class="hex-eyebrow">{{typeLabel}}</span>
       <input class="hex-nom" type="text" name="name" value="{{item.name}}" {{#unless editable}}disabled{{/unless}} />
@@ -74,9 +74,9 @@
 
   {{#if estTrait}}
   <div class="pool-actions">
-    <button type="button" class="hex-bouton primaire" data-hex="lancerTrait">
+    <button type="button" class="hex-bouton primaire" data-action="lancerTrait">
       {{localize "HEXAGON.Jet.Seul"}}
     </button>
   </div>
   {{/if}}
-</form>
+</div>

@@ -1,6 +1,6 @@
 # Journal des versions
 
-## 0.1.0
+## 0.1.0 — build v13
 
 Première version publiée.
 

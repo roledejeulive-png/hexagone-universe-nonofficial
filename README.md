@@ -4,7 +4,7 @@ Moteur de jeu pour parties de super-héros à pools de d6 : Traits notés (Motiv
 
 **Non officiel.** Ce dépôt ne contient aucun texte de règles, aucun personnage, aucun visuel de la licence Hexagon (Lug / Hexagon Comics / Rivière Blanche / Les XII Singes). Il fournit des structures de données et une interface. Pour jouer, il faut le livre.
 
-Compatible **Foundry VTT v12**.
+**Branche `foundry-v13`** — build pour Foundry VTT v13 (vérifié sur la build 351). La branche `main` porte le build v12, fonctionnellement identique. Les deux partagent l'id `hexagon-universe` : ils ne peuvent pas cohabiter sur une même installation.
 
 ---
 
@@ -13,35 +13,39 @@ Compatible **Foundry VTT v12**.
 ### URL de manifeste
 
 ```
-https://github.com/roledejeulive-png/hexagone-universe-nonofficial/releases/latest/download/system.json
+https://raw.githubusercontent.com/roledejeulive-png/hexagone-universe-nonofficial/foundry-v13/system.json
 ```
 
-**Sur la Forge** — onglet *Game Systems*, bouton d'installation, coller l'URL ci-dessus dans le champ *Manifest URL*.
+**Sur la Forge** — onglet *Game Systems*, bouton d'installation, coller l'URL dans le champ *Manifest URL*.
 
-**Sur une installation Foundry classique** — écran de configuration, onglet *Game Systems*, *Install System*, même URL dans le champ *Manifest URL* en bas de la fenêtre.
+**Sur une installation classique** — écran de configuration, onglet *Game Systems*, *Install System*, même URL.
 
-Tant qu'aucune release n'a été publiée, cette URL renvoie une erreur : voir la section suivante.
+Cette adresse est servie dès que la branche est poussée, sans attendre de release. L'archive téléchargée est celle que GitHub génère pour la branche ; elle contient un dossier racine que Foundry retire à l'installation.
 
 ### Installation manuelle
 
-Télécharger `hexagon-universe.zip` depuis les releases, décompresser dans `Data/systems/hexagon-universe/` — `system.json` doit se trouver directement dans ce dossier, sans niveau intermédiaire — puis redémarrer le serveur Foundry.
+Décompresser l'archive dans `Data/systems/hexagon-universe/` — `system.json` doit se trouver directement dans ce dossier, sans niveau intermédiaire — puis redémarrer le serveur.
+
+## Différences avec le build v12
+
+Même comportement en jeu, API différente :
+
+| | branche `main` (v12) | branche `foundry-v13` |
+| --- | --- | --- |
+| Sous-types | `template.json` | `documentTypes` dans `system.json` |
+| Feuilles | `ActorSheet` / `ItemSheet` | `ApplicationV2` + `HandlebarsApplicationMixin` |
+| Onglets | mécanisme natif des feuilles v1 | gérés par la feuille, action `selectTab` |
+| Confirmations | `Dialog.confirm` | `DialogV2.confirm` |
+| Templates | un fichier par feuille, partials Handlebars | `PARTS` assemblées par l'application |
 
 ## Publier une version
 
-Le dépôt contient deux workflows GitHub Actions.
-
-`verification.yml` tourne à chaque poussée sur `main` : syntaxe des modules, validité des JSON, cohérence entre le manifeste et les fichiers réellement présents, parité des traductions. Un JSON invalide fait disparaître le système de la liste de Foundry sans message clair, autant s'en apercevoir ici.
-
-`release.yml` se déclenche sur un tag de version :
+`verification.yml` tourne à chaque poussée sur la branche. `release.yml` se déclenche sur un tag préfixé, pour ne pas se mélanger avec ceux du build v12 :
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+git tag v13-0.1.0
+git push origin v13-0.1.0
 ```
-
-Il réécrit `system.json` avec le numéro du tag et les URLs de la release, construit l'archive, puis publie les deux fichiers comme *assets*. C'est ce qui rend l'URL de manifeste fonctionnelle et permet aux mises à jour d'être détectées.
-
-Le numéro de version inscrit dans `system.json` sert de valeur de repli pour le développement local ; lors d'une publication, c'est toujours le tag qui fait foi.
 
 ## Ce qu'il y a dedans
 
@@ -50,7 +54,7 @@ Le numéro de version inscrit dans `system.json` sert de valeur de repli pour le
 | Acteurs | `heros` (identité, Énergie, Audace, XP) et `figurant` (Énergie, pool par défaut, effectif) |
 | Objets | `motivation`, `talent` (+ spécialités), `pouvoir` (+ coût en énergie, limites), `equipement` (+ dés apportés) |
 | Rangs | Motivations 3, Talents 3, Pouvoirs 10, dés d'équipement 0 à 3 |
-| Jets | sélection de Traits sur la feuille → pool → `Nd6`, réussites sur 3+, difficulté sur dix crans, carte de chat détaillée |
+| Jets | sélection de Traits sur la feuille → pool → `Nd6`, réussites sur 3+, difficulté sur dix crans |
 | Spécialités | portées par les Talents : −1 dé, +1 réussite acquise, cumulables, inactives si le Talent est au rang 0 |
 | Automatisme | le coût en énergie des Pouvoirs engagés est déduit au moment du jet |
 | API macro | `game.hexagon.lancerPool({ des: 6, difficulte: 2, label: "Esquive" })` |
@@ -74,23 +78,6 @@ Les valeurs chiffrées sont regroupées dans `module/config.mjs` :
 - Pas de compendium fourni (voir la note de licence plus haut).
 - Pas d'Active Effects ni d'automatisation de combat au-delà de l'initiative à 1d6.
 - Le tri des Traits par glisser-déposer n'est pas implémenté.
-
-## Structure
-
-```
-system.json              manifeste (id, compatibilité, URLs de publication)
-template.json            déclaration des sous-types d'Acteurs et d'Objets
-module/config.mjs        toutes les valeurs chiffrées
-module/hexagon.mjs       point d'entrée, hook init
-module/data/             modèles de données (TypeDataModel)
-module/documents/        classes Actor et Item
-module/dice/pool.mjs     construction du pool, jet, carte de chat
-module/apps/             feuilles de personnage et d'objet
-templates/               Handlebars
-css/hexagon.css          habillage
-lang/                    fr, en
-.github/workflows/       vérification et publication
-```
 
 ## Licence
 

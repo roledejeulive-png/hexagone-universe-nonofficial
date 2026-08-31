@@ -1,4 +1,5 @@
 import { HEXAGON } from "../config.mjs";
+import { renderTemplate } from "../helpers.mjs";
 
 /**
  * Construit un pool à partir d'une liste de Traits (Items) et de modificateurs.

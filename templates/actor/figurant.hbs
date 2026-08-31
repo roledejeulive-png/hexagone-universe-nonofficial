@@ -1,6 +1,6 @@
-<form class="{{cssClass}} hexagon-form hex-figurant" autocomplete="off">
+<div class="hex-figurant">
   <header class="hex-header compact">
-    <img class="hex-portrait" src="{{actor.img}}" data-edit="img" alt="{{actor.name}}" />
+    <img class="hex-portrait" src="{{actor.img}}" data-action="editImage" data-edit="img" alt="{{actor.name}}" />
     <div class="hex-identite">
       <input class="hex-nom" type="text" name="name" value="{{actor.name}}" {{#unless editable}}disabled{{/unless}} />
       <label>
@@ -16,8 +16,8 @@
       <span class="hex-paire">
         <input type="number" name="system.energie.value" value="{{system.energie.value}}" {{#unless editable}}disabled{{/unless}} />
         <span class="hex-pas">
-          <button type="button" data-hex="ajusterActeur" data-champ="system.energie.value" data-delta="1" title="{{localize 'HEXAGON.Valeur.Augmenter'}}">▴</button>
-          <button type="button" data-hex="ajusterActeur" data-champ="system.energie.value" data-delta="-1" title="{{localize 'HEXAGON.Valeur.Diminuer'}}">▾</button>
+          <button type="button" data-action="ajusterActeur" data-champ="system.energie.value" data-delta="1" title="{{localize 'HEXAGON.Valeur.Augmenter'}}">▴</button>
+          <button type="button" data-action="ajusterActeur" data-champ="system.energie.value" data-delta="-1" title="{{localize 'HEXAGON.Valeur.Diminuer'}}">▾</button>
         </span>
         <em>/</em>
         <input type="number" name="system.energie.max" value="{{system.energie.max}}" {{#unless editable}}disabled{{/unless}} />
@@ -49,7 +49,9 @@
       </label>
     </div>
     <div class="pool-actions">
-      <button type="button" class="hex-bouton primaire" data-hex="lancerDefaut">{{localize "HEXAGON.Pool.Lancer"}}</button>
+      <button type="button" class="hex-bouton primaire" data-action="lancerDefaut">
+        {{localize "HEXAGON.Pool.Lancer"}}
+      </button>
     </div>
   </section>
 
@@ -57,4 +59,4 @@
     <span>{{localize "HEXAGON.Champ.Notes"}}</span>
     <textarea name="system.notes" rows="8" {{#unless editable}}disabled{{/unless}}>{{system.notes}}</textarea>
   </label>
-</form>
+</div>

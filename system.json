@@ -4,9 +4,8 @@
   "description": "Moteur de jeu non officiel pour parties de super-héros à la française : Traits notés, pools de d6 et comptage de réussites. Ne contient aucun texte de règles ni contenu sous licence.",
   "version": "0.1.0",
   "compatibility": {
-    "minimum": "12",
-    "verified": "12",
-    "maximum": "12"
+    "minimum": "13",
+    "verified": "13.351"
   },
   "authors": [
     {
@@ -32,6 +31,43 @@
       "path": "lang/en.json"
     }
   ],
+  "documentTypes": {
+    "Actor": {
+      "heros": {
+        "htmlFields": [
+          "notes"
+        ]
+      },
+      "figurant": {
+        "htmlFields": [
+          "notes"
+        ]
+      }
+    },
+    "Item": {
+      "motivation": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "talent": {
+        "htmlFields": [
+          "description"
+        ]
+      },
+      "pouvoir": {
+        "htmlFields": [
+          "description",
+          "limites"
+        ]
+      },
+      "equipement": {
+        "htmlFields": [
+          "description"
+        ]
+      }
+    }
+  },
   "grid": {
     "distance": 2,
     "units": "m"
@@ -40,7 +76,7 @@
   "secondaryTokenAttribute": "audace",
   "license": "LICENSE.txt",
   "url": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial",
-  "manifest": "https://raw.githubusercontent.com/roledejeulive-png/hexagone-universe-nonofficial/main/system.json",
-  "download": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial/archive/refs/heads/main.zip",
+  "manifest": "https://raw.githubusercontent.com/roledejeulive-png/hexagone-universe-nonofficial/foundry-v13/system.json",
+  "download": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial/archive/refs/heads/foundry-v13.zip",
   "bugs": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial/issues"
 }

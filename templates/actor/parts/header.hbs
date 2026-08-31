@@ -1,5 +1,5 @@
 <header class="hex-header">
-  <img class="hex-portrait" src="{{actor.img}}" data-edit="img" alt="{{actor.name}}" title="{{actor.name}}" />
+  <img class="hex-portrait" src="{{actor.img}}" data-action="editImage" data-edit="img" alt="{{actor.name}}" />
 
   <div class="hex-identite">
     <input class="hex-nom" type="text" name="name" value="{{actor.name}}" placeholder="{{localize 'HEXAGON.Champ.NomDeCode'}}" {{#unless editable}}disabled{{/unless}} />
@@ -41,8 +41,12 @@
     </div>
 
     <div class="pool-actions">
-      <button type="button" class="hex-bouton primaire" data-hex="lancerPool">{{localize "HEXAGON.Pool.Lancer"}}</button>
-      <button type="button" class="hex-bouton discret" data-hex="viderPool">{{localize "HEXAGON.Pool.Vider"}}</button>
+      <button type="button" class="hex-bouton primaire" data-action="lancerPool">
+        {{localize "HEXAGON.Pool.Lancer"}}
+      </button>
+      <button type="button" class="hex-bouton discret" data-action="viderPool">
+        {{localize "HEXAGON.Pool.Vider"}}
+      </button>
     </div>
 
     <p class="pool-detail">
