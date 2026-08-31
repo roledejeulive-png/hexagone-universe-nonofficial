@@ -2,7 +2,7 @@
   "id": "hexagon-universe",
   "title": "Hexagon Universe (non officiel)",
   "description": "Moteur de jeu non officiel pour parties de super-héros à la française : Traits notés, pools de d6 et comptage de réussites. Ne contient aucun texte de règles ni contenu sous licence.",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "compatibility": {
     "minimum": "13",
     "verified": "13.351"
