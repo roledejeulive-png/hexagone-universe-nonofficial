@@ -105,16 +105,35 @@ export class HexagonHerosSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
   /*  Rendu                                       */
   /* -------------------------------------------- */
 
+  /**
+   * L'élément racine de la feuille survit aux rendus successifs, contrairement
+   * aux parties. Rebrancher les écouteurs sans couper les précédents les
+   * empilerait, et un seul dépôt créerait autant d'Items qu'il y a eu de
+   * rendus. Le contrôleur est donc réarmé à chaque passage.
+   */
+  #ecouteurs = null;
+
   _onRender(context, options) {
     super._onRender?.(context, options);
+    this.#ecouteurs?.abort();
     if (!this.isEditable) return;
-    this.element.addEventListener("dragover", (event) => event.preventDefault());
-    this.element.addEventListener("drop", this.#onDrop.bind(this));
+
+    this.#ecouteurs = new AbortController();
+    const { signal } = this.#ecouteurs;
+    this.element.addEventListener("dragover", (event) => event.preventDefault(), { signal });
+    this.element.addEventListener("drop", this.#onDrop.bind(this), { signal });
   }
 
-  /** Dépose d'un Item venant du répertoire, d'un compendium ou d'une autre fiche. */
+  _onClose(options) {
+    this.#ecouteurs?.abort();
+    this.#ecouteurs = null;
+    super._onClose?.(options);
+  }
+
+  /** Dépôt d'un Item venant du répertoire, d'un compendium ou d'une autre fiche. */
   async #onDrop(event) {
     event.preventDefault();
+
     let data;
     try {
       data = JSON.parse(event.dataTransfer.getData("text/plain"));
@@ -122,9 +141,12 @@ export class HexagonHerosSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
       return;
     }
     if (data?.type !== "Item") return;
+
     const item = await fromUuid(data.uuid);
     if (!item) return;
+    // Un Item déjà porté par cet acteur n'est pas dupliqué.
     if (item.parent === this.actor) return;
+
     await this.actor.createEmbeddedDocuments("Item", [item.toObject()]);
   }
 

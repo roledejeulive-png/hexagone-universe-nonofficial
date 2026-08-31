@@ -1,5 +1,9 @@
 # Journal des versions
 
+## 0.1.1 — build v13
+
+- Correction : déposer un Item sur une feuille de personnage en créait plusieurs. Les écouteurs de dépôt s'empilaient à chaque rendu de la feuille au lieu d'être remplacés.
+
 ## 0.1.0 — build v13
 
 Première version publiée.
