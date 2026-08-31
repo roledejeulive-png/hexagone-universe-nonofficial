@@ -1,0 +1,41 @@
+{
+  "id": "hexagon-universe",
+  "title": "Hexagon Universe (non officiel)",
+  "description": "Moteur de jeu non officiel pour parties de super-héros à la française : Traits notés, pools de d6 et comptage de réussites. Ne contient aucun texte de règles ni contenu sous licence.",
+  "version": "1.0",
+  "compatibility": {
+    "minimum": "12",
+    "verified": "12",
+    "maximum": "12"
+  },
+  "authors": [
+    {
+      "name": "Kae from RoleDeJeu"
+    }
+  ],
+  "esmodules": [
+    "module/hexagon.mjs"
+  ],
+  "styles": [
+    "css/hexagon.css"
+  ],
+  "languages": [
+    {
+      "lang": "fr",
+      "name": "Français",
+      "path": "lang/fr.json"
+    },
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "grid": {
+    "distance": 2,
+    "units": "m"
+  },
+  "primaryTokenAttribute": "energie",
+  "secondaryTokenAttribute": "audace",
+  "license": "LICENSE.txt"
+}

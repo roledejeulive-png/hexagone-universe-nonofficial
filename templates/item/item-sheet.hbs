@@ -1,0 +1,82 @@
+<form class="{{cssClass}} hexagon-form hex-objet" autocomplete="off">
+  <header class="hex-header compact">
+    <img class="hex-portrait petit" src="{{item.img}}" data-edit="img" alt="{{item.name}}" />
+    <div class="hex-identite">
+      <span class="hex-eyebrow">{{typeLabel}}</span>
+      <input class="hex-nom" type="text" name="name" value="{{item.name}}" {{#unless editable}}disabled{{/unless}} />
+    </div>
+  </header>
+
+  <div class="hex-champs">
+    {{#if estTrait}}
+    <label class="hex-jauge">
+      <span>{{localize "HEXAGON.Champ.Rang"}}</span>
+      <input type="number" name="system.rang" value="{{system.rang}}" min="0" max="{{rangMax}}" {{#unless editable}}disabled{{/unless}} />
+    </label>
+    {{/if}}
+
+    {{#if estTalent}}
+    <label class="hex-jauge large">
+      <span>{{localize "HEXAGON.Champ.Specialites"}}</span>
+      <input type="text" name="system.specialites" value="{{system.specialites}}" placeholder="{{localize 'HEXAGON.Champ.SpecialitesAide'}}" {{#unless editable}}disabled{{/unless}} />
+      {{#if specialitesEnSommeil}}<em class="hex-alerte">{{localize "HEXAGON.Champ.SpecialitesRang0"}}</em>{{/if}}
+    </label>
+    {{/if}}
+
+    {{#if estMotivation}}
+    <label class="hex-jauge large">
+      <span>{{localize "HEXAGON.Champ.Dilemme"}}</span>
+      <input type="text" name="system.dilemme" value="{{system.dilemme}}" placeholder="{{localize 'HEXAGON.Champ.DilemmeAide'}}" {{#unless editable}}disabled{{/unless}} />
+    </label>
+    {{/if}}
+
+    {{#if estPouvoir}}
+    <label class="hex-jauge">
+      <span>{{localize "HEXAGON.Champ.Cout"}}</span>
+      <input type="number" name="system.cout" value="{{system.cout}}" min="0" {{#unless editable}}disabled{{/unless}} />
+    </label>
+    {{/if}}
+
+    {{#if estEquipement}}
+    <label class="hex-jauge">
+      <span>{{localize "HEXAGON.Champ.Bonus"}}</span>
+      <input type="number" name="system.bonus" value="{{system.bonus}}" min="0" max="{{bonusMax}}" {{#unless editable}}disabled{{/unless}} />
+    </label>
+    <label class="hex-jauge">
+      <span>{{localize "HEXAGON.Champ.Quantite"}}</span>
+      <input type="number" name="system.quantite" value="{{system.quantite}}" min="0" {{#unless editable}}disabled{{/unless}} />
+    </label>
+    <label class="hex-jauge case">
+      <input type="checkbox" name="system.equipe" {{#if system.equipe}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />
+      <span>{{localize "HEXAGON.Champ.Porte"}}</span>
+    </label>
+    {{/if}}
+
+    {{#if estTrait}}
+    <label class="hex-jauge case">
+      <input type="checkbox" name="system.favori" {{#if system.favori}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />
+      <span>{{localize "HEXAGON.Champ.Favori"}}</span>
+    </label>
+    {{/if}}
+  </div>
+
+  <label class="hex-notes">
+    <span>{{localize "HEXAGON.Champ.Description"}}</span>
+    <textarea name="system.description" rows="8" {{#unless editable}}disabled{{/unless}}>{{system.description}}</textarea>
+  </label>
+
+  {{#if estPouvoir}}
+  <label class="hex-notes">
+    <span>{{localize "HEXAGON.Champ.Limites"}}</span>
+    <textarea name="system.limites" rows="4" placeholder="{{localize 'HEXAGON.Champ.LimitesAide'}}" {{#unless editable}}disabled{{/unless}}>{{system.limites}}</textarea>
+  </label>
+  {{/if}}
+
+  {{#if estTrait}}
+  <div class="pool-actions">
+    <button type="button" class="hex-bouton primaire" data-hex="lancerTrait">
+      {{localize "HEXAGON.Jet.Seul"}}
+    </button>
+  </div>
+  {{/if}}
+</form>

@@ -1,0 +1,14 @@
+{
+  "Actor": {
+    "types": ["heros", "figurant"],
+    "heros": {},
+    "figurant": {}
+  },
+  "Item": {
+    "types": ["motivation", "talent", "pouvoir", "equipement"],
+    "motivation": {},
+    "talent": {},
+    "pouvoir": {},
+    "equipement": {}
+  }
+}
