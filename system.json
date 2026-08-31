@@ -40,7 +40,7 @@
   "secondaryTokenAttribute": "audace",
   "license": "LICENSE.txt",
   "url": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial",
-  "manifest": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial/blob/main/download/system.json",
-  "download": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial/archive/refs/tags/v1.0.zip",
+  "manifest": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial/releases/latest/download/system.json",
+  "download": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial/releases/latest/download/v1.0.zip",
   "bugs": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial/issues"
 }
