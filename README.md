@@ -4,66 +4,92 @@ Moteur de jeu pour parties de super-héros à pools de d6 : Traits notés (Motiv
 
 **Non officiel.** Ce dépôt ne contient aucun texte de règles, aucun personnage, aucun visuel de la licence Hexagon (Lug / Hexagon Comics / Rivière Blanche / Les XII Singes). Il fournit des structures de données et une interface. Pour jouer, il faut le livre.
 
+Compatible **Foundry VTT v12**.
+
 ---
 
 ## Installation
 
-1. Copier le dossier `hexagon-universe/` dans `Data/systems/` de votre installation Foundry.
-2. Relancer Foundry, créer un monde et choisir le système « Hexagon Universe (non officiel) ».
+### URL de manifeste
 
-**Build pour Foundry VTT v12.** Sous-types déclarés dans `template.json`, schémas en `TypeDataModel`, feuilles classiques (`ActorSheet` / `ItemSheet`) avec les onglets natifs. Le manifeste est borné à la v12 : pour passer en v13+, il faudra remonter `compatibility` et migrer les feuilles vers `ApplicationV2`.
+```
+https://github.com/roledejeulive-png/hexagone-universe-nonofficial/releases/latest/download/system.json
+```
+
+**Sur la Forge** — onglet *Game Systems*, bouton d'installation, coller l'URL ci-dessus dans le champ *Manifest URL*.
+
+**Sur une installation Foundry classique** — écran de configuration, onglet *Game Systems*, *Install System*, même URL dans le champ *Manifest URL* en bas de la fenêtre.
+
+Tant qu'aucune release n'a été publiée, cette URL renvoie une erreur : voir la section suivante.
+
+### Installation manuelle
+
+Télécharger `hexagon-universe.zip` depuis les releases, décompresser dans `Data/systems/hexagon-universe/` — `system.json` doit se trouver directement dans ce dossier, sans niveau intermédiaire — puis redémarrer le serveur Foundry.
+
+## Publier une version
+
+Le dépôt contient deux workflows GitHub Actions.
+
+`verification.yml` tourne à chaque poussée sur `main` : syntaxe des modules, validité des JSON, cohérence entre le manifeste et les fichiers réellement présents, parité des traductions. Un JSON invalide fait disparaître le système de la liste de Foundry sans message clair, autant s'en apercevoir ici.
+
+`release.yml` se déclenche sur un tag de version :
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+Il réécrit `system.json` avec le numéro du tag et les URLs de la release, construit l'archive, puis publie les deux fichiers comme *assets*. C'est ce qui rend l'URL de manifeste fonctionnelle et permet aux mises à jour d'être détectées.
+
+Le numéro de version inscrit dans `system.json` sert de valeur de repli pour le développement local ; lors d'une publication, c'est toujours le tag qui fait foi.
 
 ## Ce qu'il y a dedans
 
 | Élément | Détail |
 | --- | --- |
-| Acteurs | `heros` (identité, santé, énergie, audace, XP) et `figurant` (pool par défaut, effectif) |
-| Objets | `motivation` (+ dilemme), `talent`, `pouvoir` (+ coût en énergie, limites), `equipement` (+ dés apportés) |
-| Jets | sélection de Traits sur la feuille → pool → `Nd6`, réussites sur 3+, comparaison à une difficulté, carte de chat détaillée |
+| Acteurs | `heros` (identité, Énergie, Audace, XP) et `figurant` (Énergie, pool par défaut, effectif) |
+| Objets | `motivation`, `talent` (+ spécialités), `pouvoir` (+ coût en énergie, limites), `equipement` (+ dés apportés) |
+| Rangs | Motivations 3, Talents 3, Pouvoirs 10, dés d'équipement 0 à 3 |
+| Jets | sélection de Traits sur la feuille → pool → `Nd6`, réussites sur 3+, difficulté sur dix crans, carte de chat détaillée |
+| Spécialités | portées par les Talents : −1 dé, +1 réussite acquise, cumulables, inactives si le Talent est au rang 0 |
 | Automatisme | le coût en énergie des Pouvoirs engagés est déduit au moment du jet |
-| Spécialités | portées par les Talents : −1 dé, +1 réussite acquise, cumulables |
 | API macro | `game.hexagon.lancerPool({ des: 6, difficulte: 2, label: "Esquive" })` |
 
-Sur la feuille de héros, chaque Trait porte un jeton hexagonal affichant son rang : cliquer dessus l'engage dans le pool, la jauge en haut affiche le total de dés. Le bouton « Lancer » résout, « Vider » remet à zéro.
-
-### Spécialités
-
-Un Talent peut porter des spécialités, saisies en clair sur sa fiche et séparées par des virgules. Un Talent au rang 0 n'en a aucune : la saisie reste en mémoire mais rien n'est publié tant que le rang n'est pas remonté. Elles apparaissent alors sous le Talent dans la liste de la feuille. En engager une retire un dé du pool et offre une réussite acquise d'avance ; le Talent est engagé automatiquement avec elle. Le troc est réglable dans `config.mjs` (`HEXAGON.specialite`).
-
-Attention à l'interaction avec `dice.poolMinimum` : tant qu'il vaut 1, une spécialité engagée sur un tout petit pool ne coûte rien de réel — le pool ne peut pas descendre sous un dé. Passer ce minimum à 0 rend le troc cohérent à tous les niveaux.
+Sur la feuille de héros, chaque Trait porte un jeton hexagonal affichant son rang : cliquer dessus l'engage dans le pool, la jauge en haut affiche le total de dés. Les chevrons ▴▾ règlent les rangs et les jauges sans ouvrir de fenêtre.
 
 ## Ce qu'il faut caler sur les vraies règles
 
-Tout est regroupé dans `module/config.mjs`. Les valeurs actuelles sont des choix par défaut, à confirmer avec le livre :
+Les valeurs chiffrées sont regroupées dans `module/config.mjs` :
 
 - `dice.seuilReussite` — actuellement 3.
-- `dice.poolMinimum` — ce qui se passe quand aucun Trait ne s'applique (actuellement : 1 dé).
-- `difficultes` — l'échelle en nombre de réussites (10 crans par défaut).
-- `rangMax` — plafond par type de Trait : Motivations 3, Talents 3, Pouvoirs 10, dés d'équipement 0 à 3.
-- `HerosData` dans `module/data/actor-data.mjs` — santé, énergie et audace sont des jauges génériques (valeurs de départ 10, 10 et 3) ; à caler sur les vraies ressources du jeu.
-- Le comptage des 6 (« éclats ») est affiché mais n'a aucun effet : accroche libre pour une règle maison.
+- `dice.poolMinimum` — ce qui se passe quand le pool tombe à zéro (actuellement : 1 dé). Tant qu'il vaut 1, une spécialité engagée sur un très petit pool ne coûte rien de réel.
+- `difficultes` — l'échelle en nombre de réussites, dix crans par défaut.
+- `rangMax` — plafond par type de Trait.
+- `specialite` — le troc dé contre réussite.
+- `HerosData` dans `module/data/actor-data.mjs` — l'Énergie sert à la fois de jauge vitale et de carburant aux Pouvoirs ; l'Audace est une ressource dramatique laissée libre d'usage.
 
 ## Limites connues
 
-- Les champs longs sont des `textarea` : pas d'éditeur enrichi ProseMirror pour l'instant.
+- Les champs longs sont des `textarea` : pas d'éditeur enrichi ProseMirror.
 - Pas de compendium fourni (voir la note de licence plus haut).
 - Pas d'Active Effects ni d'automatisation de combat au-delà de l'initiative à 1d6.
-- Le dépôt d'un Item sur une fiche passe par le comportement natif des feuilles v1 ; le tri par glisser-déposer n'est pas implémenté.
+- Le tri des Traits par glisser-déposer n'est pas implémenté.
 
 ## Structure
 
 ```
-system.json              manifeste (compatibilité v12)
-template.json            déclaration des sous-types
+system.json              manifeste (id, compatibilité, URLs de publication)
+template.json            déclaration des sous-types d'Acteurs et d'Objets
 module/config.mjs        toutes les valeurs chiffrées
 module/hexagon.mjs       point d'entrée, hook init
 module/data/             modèles de données (TypeDataModel)
 module/documents/        classes Actor et Item
 module/dice/pool.mjs     construction du pool, jet, carte de chat
-module/apps/             feuilles ApplicationV2
+module/apps/             feuilles de personnage et d'objet
 templates/               Handlebars
 css/hexagon.css          habillage
 lang/                    fr, en
+.github/workflows/       vérification et publication
 ```
 
 ## Licence
