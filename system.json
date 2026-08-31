@@ -77,6 +77,6 @@
   "license": "LICENSE.txt",
   "url": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial",
   "manifest": "https://raw.githubusercontent.com/roledejeulive-png/hexagone-universe-nonofficial/main/system.json",
-  "download": "https://codeload.github.com/roledejeulive-png/hexagone-universe-nonofficial/zip/refs/heads/foundry-v13",
+  "download": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial/archive/refs/tags/v0.2.0.zip",
   "bugs": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial/issues"
 }
