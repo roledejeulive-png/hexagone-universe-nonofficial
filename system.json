@@ -41,6 +41,6 @@
   "license": "LICENSE.txt",
   "url": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial",
   "manifest": "https://raw.githubusercontent.com/roledejeulive-png/hexagone-universe-nonofficial/main/system.json",
-  "download": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial/releases/latest/download/v1.0.zip",
+  "download": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial/archive/refs/heads/main.zip",
   "bugs": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial/issues"
 }
