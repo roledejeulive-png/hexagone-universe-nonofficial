@@ -366,9 +366,6 @@ export function registerActorSheets() {
     makeDefault: true,
     label: "HEXAGON.Feuille.Figurant"
   });
-  Actors.registerSheet(HEXAGON.id, HexagonHommesDeMainSheet, {
-    types: ["hommesDeMain"],
-    makeDefault: true,
-    label: "HEXAGON.Feuille.HommesDeMain"
-  });
+  // Hommes de main et seconds couteaux ont leur propre fichier et sont
+  // enregistrés depuis le point d'entrée.
 }

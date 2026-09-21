@@ -157,5 +157,6 @@
   "HEXAGON.SecondCouteau.Vaincu": "NPC beaten, out of the fight or fleeing.",
   "HEXAGON.Initiative.Equipe": "Player team",
   "HEXAGON.Initiative.EquipeAide": "Tick the characters taking part in the action scene. Only they join the collective hand and receive a share of the pool.",
-  "HEXAGON.Initiative.AucunHeros": "No player character in this encounter."
+  "HEXAGON.Initiative.AucunHeros": "No player character in this encounter.",
+  "HEXAGON.Initiative.Erreur": "The initiative phase hit an error: details are in the console (F12)."
 }

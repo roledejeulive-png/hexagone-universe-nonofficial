@@ -17,6 +17,10 @@ Hooks.once("init", () => {
 
   CONFIG.HEXAGON = HEXAGON;
 
+  // En premier : les helpers Handlebars. Sans eux, aucune feuille ne peut se
+  // dessiner ; ils ne doivent donc dépendre de rien de ce qui suit.
+  registerHandlebarsHelpers();
+
   // Documents
   CONFIG.Actor.documentClass = HexagonActor;
   CONFIG.Item.documentClass = HexagonItem;
@@ -48,19 +52,30 @@ Hooks.once("init", () => {
     default: true
   });
 
-  registerActorSheets();
-  (foundry.documents?.collections?.Actors ?? globalThis.Actors).registerSheet(HEXAGON.id, HexagonHommesDeMainSheet, {
-    types: ["hommesDeMain"],
-    makeDefault: true,
-    label: "HEXAGON.Feuille.HommesDeMain"
-  });
-  (foundry.documents?.collections?.Actors ?? globalThis.Actors).registerSheet(HEXAGON.id, HexagonSecondCouteauSheet, {
-    types: ["secondCouteau"],
-    makeDefault: true,
-    label: "HEXAGON.Feuille.SecondCouteau"
-  });
-  registerItemSheets();
-  registerHandlebarsHelpers();
+  // Chaque feuille est enregistrée isolément : si l'une échoue, les autres
+  // restent utilisables et l'erreur est signalée clairement.
+  const Acteurs = foundry.documents?.collections?.Actors ?? globalThis.Actors;
+  const enregistrements = [
+    ["héros et figurants", () => registerActorSheets()],
+    ["hommes de main", () => Acteurs.registerSheet(HEXAGON.id, HexagonHommesDeMainSheet, {
+      types: ["hommesDeMain"],
+      makeDefault: true,
+      label: "HEXAGON.Feuille.HommesDeMain"
+    })],
+    ["seconds couteaux", () => Acteurs.registerSheet(HEXAGON.id, HexagonSecondCouteauSheet, {
+      types: ["secondCouteau"],
+      makeDefault: true,
+      label: "HEXAGON.Feuille.SecondCouteau"
+    })],
+    ["objets", () => registerItemSheets()]
+  ];
+  for (const [nom, enregistrer] of enregistrements) {
+    try {
+      enregistrer();
+    } catch (erreur) {
+      console.error(`Hexagon Universe | échec de l'enregistrement des feuilles (${nom})`, erreur);
+    }
+  }
 
   // API exposée pour les macros : game.hexagon.lancerPool({des: 5, difficulte: 2})
   game.hexagon = {

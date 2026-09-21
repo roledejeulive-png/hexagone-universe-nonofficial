@@ -106,7 +106,25 @@ export class PhaseInitiative extends HandlebarsApplicationMixin(ApplicationV2) {
     });
   }
 
+  /**
+   * Une erreur de préparation empêcherait le rendu et ferait disparaître la
+   * fenêtre. On la signale, et on affiche une fenêtre vide mais ouverte.
+   */
   async _prepareContext(options) {
+    try {
+      return await this.#construireContexte();
+    } catch (erreur) {
+      console.error("Hexagon Universe | phase d'initiative", erreur);
+      ui.notifications.error(game.i18n.localize("HEXAGON.Initiative.Erreur"));
+      return {
+        presents: [],
+        fractionnementAutorise: false,
+        pj: { candidats: [], leader: null, autres: [], repartition: [], pot: { total: 0 }, phaseFaite: false, desDeLaMain: 0 }
+      };
+    }
+  }
+
+  async #construireContexte() {
     const combat = this.combat;
     const potPJ = combat.pot("heros");
     const equipe = potPJ.equipe;
@@ -164,64 +182,95 @@ export class PhaseInitiative extends HandlebarsApplicationMixin(ApplicationV2) {
   /*  Formulaire                                  */
   /* -------------------------------------------- */
 
-  /** Les listes alimentent la sélection ; les fractionnements sont écrits aussitôt. */
+  /**
+   * Point d'entrée du formulaire. Toute erreur est rapportée plutôt que
+   * propagée : une exception ne doit jamais faire disparaître la fenêtre.
+   */
   static async #onChangement(event, form, formData) {
-    const donnees = formData.object;
+    try {
+      await this.#traiterChangement(event, formData);
+    } catch (erreur) {
+      console.error("Hexagon Universe | phase d'initiative", erreur);
+      ui.notifications.error(game.i18n.localize("HEXAGON.Initiative.Erreur"));
+    }
+    this.render();
+  }
 
-    if (donnees.leaderId !== undefined && donnees.leaderId !== this.#selection.leaderId) {
-      this.#selection.leaderId = donnees.leaderId || null;
-      // Changer de leader invalide sa main, pas celle des autres.
+  /**
+   * Le formulaire renvoie tous ses champs à chaque modification. On ne traite
+   * donc que celui qui vient de changer : sinon, choisir un leader passerait
+   * aussi pour une modification de l'équipe, et réécrirait la rencontre.
+   */
+  async #traiterChangement(event, formData) {
+    // Aplatissement défensif : les clés pointées restent lisibles, que la
+    // version de Foundry les rende à plat ou déjà développées.
+    const donnees = foundry.utils.flattenObject(formData.object ?? {});
+    const champ = event?.target?.name ?? "";
+
+    if (champ === "leaderId") {
+      const leaderId = donnees.leaderId || null;
+      if (leaderId !== this.#selection.leaderId) {
+        this.#selection.leaderId = leaderId;
+        // Changer de leader invalide sa main, pas celle des autres joueurs.
+        this.#selection.leader = {};
+        if (leaderId) delete this.#selection.joueurs[leaderId];
+      }
+      return;
+    }
+
+    if (champ.startsWith("leader.")) {
+      this.#selection.leader[champ.slice(7)] = donnees[champ] ?? "";
+      return;
+    }
+
+    if (champ.startsWith("joueur.")) {
+      this.#selection.joueurs[champ.slice(7)] = donnees[champ] ?? "";
+      return;
+    }
+
+    if (champ.startsWith("equipe.")) {
+      await this.#majEquipe(donnees);
+      return;
+    }
+
+    if (champ.startsWith("fraction.")) {
+      const id = champ.slice(9);
+      const combattant = this.combat.combatants.get(id);
+      if (!combattant) return;
+
+      const groupe = combattant.groupe;
+      const fractionnement = { ...this.combat.pot(groupe).fractionnement };
+      const rangs = lireFractionnement(donnees[champ]);
+      if (rangs.join(" ") === (fractionnement[id] ?? []).join(" ")) return;
+
+      fractionnement[id] = rangs;
+      await this.combat.appliquerAttribution(groupe, null, fractionnement);
+    }
+  }
+
+  /** Relit l'ensemble des cases de l'équipe et n'écrit qu'en cas de différence réelle. */
+  async #majEquipe(donnees) {
+    const equipe = Object.entries(donnees)
+      .filter(([cle, valeur]) => cle.startsWith("equipe.") && valeur)
+      .map(([cle]) => cle.slice(7));
+
+    // Tant qu'aucune liste n'est posée, l'équipe effective est l'ensemble des
+    // héros présents : c'est à elle qu'on compare, pas à une liste vide.
+    const posee = this.combat.pot("heros").equipe;
+    const effective = Array.isArray(posee) ? posee : this.combat.herosPresents.map((c) => c.id);
+    const identique = equipe.length === effective.length && equipe.every((id) => effective.includes(id));
+    if (identique) return;
+
+    // Un PJ retiré de l'équipe sort aussi de la main en cours de construction.
+    for (const id of Object.keys(this.#selection.joueurs)) {
+      if (!equipe.includes(id)) delete this.#selection.joueurs[id];
+    }
+    if (this.#selection.leaderId && !equipe.includes(this.#selection.leaderId)) {
+      this.#selection.leaderId = null;
       this.#selection.leader = {};
     }
 
-    const equipe = [];
-    let equipeTouchee = false;
-    const fractions = { heros: null, figurants: null };
-
-    for (const [cle, valeur] of Object.entries(donnees)) {
-      if (cle.startsWith("leader.")) this.#selection.leader[cle.slice(7)] = valeur;
-      else if (cle.startsWith("joueur.")) this.#selection.joueurs[cle.slice(7)] = valeur;
-      else if (cle.startsWith("equipe.")) {
-        equipeTouchee = true;
-        if (valeur) equipe.push(cle.slice(7));
-      }
-      else if (cle.startsWith("fraction.")) {
-        const id = cle.slice(9);
-        const combattant = this.combat.combatants.get(id);
-        if (!combattant) continue;
-
-        const groupe = combattant.groupe;
-        fractions[groupe] ??= { ...this.combat.pot(groupe).fractionnement };
-
-        const rangs = lireFractionnement(valeur);
-        if (rangs.join(" ") !== (fractions[groupe][id] ?? []).join(" ")) {
-          fractions[groupe][id] = rangs;
-          fractions[groupe].__modifie = true;
-        }
-      }
-    }
-
-    const equipeActuelle = this.combat.pot("heros").equipe;
-    if (equipeTouchee && equipe.join("|") !== (equipeActuelle ?? []).join("|")) {
-      // Un PJ retiré de l'équipe sort aussi de la main en cours de construction.
-      for (const id of Object.keys(this.#selection.joueurs)) {
-        if (!equipe.includes(id)) delete this.#selection.joueurs[id];
-      }
-      if (this.#selection.leaderId && !equipe.includes(this.#selection.leaderId)) {
-        this.#selection.leaderId = null;
-        this.#selection.leader = {};
-      }
-      await this.combat.definirEquipe(equipe);
-    }
-
-    for (const groupe of ["heros", "figurants"]) {
-      const bloc = fractions[groupe];
-      if (!bloc?.__modifie) continue;
-      delete bloc.__modifie;
-      await this.combat.appliquerAttribution(groupe, null, bloc);
-    }
-
-    this.render();
+    await this.combat.definirEquipe(equipe);
   }
 
   /* -------------------------------------------- */

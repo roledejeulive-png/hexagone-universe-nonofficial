@@ -157,5 +157,6 @@
   "HEXAGON.SecondCouteau.Vaincu": "PNJ vaincu, hors de combat ou en fuite.",
   "HEXAGON.Initiative.Equipe": "Équipe des joueurs",
   "HEXAGON.Initiative.EquipeAide": "Cochez les personnages qui prennent part à la scène d'action. Seuls eux entrent dans la main collective et reçoivent une part du pot.",
-  "HEXAGON.Initiative.AucunHeros": "Aucun personnage joueur dans la rencontre."
+  "HEXAGON.Initiative.AucunHeros": "Aucun personnage joueur dans la rencontre.",
+  "HEXAGON.Initiative.Erreur": "La phase d'initiative a rencontré une erreur : le détail est dans la console (F12)."
 }
