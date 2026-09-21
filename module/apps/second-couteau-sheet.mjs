@@ -1,4 +1,5 @@
 import { HEXAGON } from "../config.mjs";
+import { signalerLimite } from "../helpers.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
@@ -42,8 +43,12 @@ export class HexagonSecondCouteauSheet extends HandlebarsApplicationMixin(ActorS
 
     const delta = Number(target.dataset.delta ?? 1);
     const actuelle = Number(this.actor.system.menace) || 0;
-    const valeur = Math.min(Math.max(actuelle + delta, 0), HEXAGON.secondCouteau.menaceMax);
-    if (valeur === actuelle) return;
+    const plafond = HEXAGON.secondCouteau.menaceMax;
+    const valeur = actuelle + delta;
+    if (valeur < 0 || valeur > plafond) {
+      signalerLimite(0, plafond);
+      return;
+    }
 
     await this.actor.update({ "system.menace": valeur });
     await this.render();

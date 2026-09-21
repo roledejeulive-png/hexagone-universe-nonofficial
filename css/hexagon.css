@@ -859,6 +859,23 @@
   color: var(--encre);
 }
 
+.hexagon .phase-attente {
+  margin-left: 0.3rem;
+  padding: 0 0.3rem;
+  font-style: normal;
+  font-size: 0.68rem;
+  background: var(--jaune);
+  color: var(--texte);
+}
+
+.hexagon .phase-pied {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--plomb);
+}
+
 .hexagon .phase-actions {
   display: flex;
   justify-content: flex-end;

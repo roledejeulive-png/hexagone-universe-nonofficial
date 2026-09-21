@@ -1,5 +1,6 @@
 import { HEXAGON } from "../config.mjs";
 import { validerFractionnement, lireFractionnement } from "../documents/combat.mjs";
+import { signalerLimite } from "../helpers.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -37,7 +38,8 @@ export class PhaseInitiative extends HandlebarsApplicationMixin(ApplicationV2) {
       lancerPhase: PhaseInitiative.#onLancerPhase,
       ajusterPart: PhaseInitiative.#onAjusterPart,
       appliquer: PhaseInitiative.#onAppliquer,
-      cloturerTour: PhaseInitiative.#onCloturerTour
+      cloturerTour: PhaseInitiative.#onCloturerTour,
+      reinitialiser: PhaseInitiative.#onReinitialiser
     }
   };
 
@@ -92,12 +94,21 @@ export class PhaseInitiative extends HandlebarsApplicationMixin(ApplicationV2) {
       const controle = validerFractionnement(fraction, rang);
       const rangs = combat.rangsDe(c.id);
 
+      // Les rangs ne sont reportés qu'à l'application : on signale l'écart
+      // entre ce qui est préparé ici et ce qu'affiche la barre de combat.
+      const lignes = [c.initiative, ...combat.combatants
+        .filter((l) => l.estRangSupplementaire && l.getFlag(HEXAGON.id, "rangSupplementaire") === c.id)
+        .map((l) => l.initiative)]
+        .filter((v) => v !== null && v !== undefined)
+        .sort((a, b) => b - a);
+
       return {
         id: c.id,
         groupe,
         nom: c.name,
         part,
         rang,
+        enAttente: lignes.join(",") !== rangs.join(","),
         saisie: fraction.join(" "),
         rangs,
         fractionne: rangs.length > 1,
@@ -173,7 +184,10 @@ export class PhaseInitiative extends HandlebarsApplicationMixin(ApplicationV2) {
             options: this.#optionsTraits(c.actor),
             choisi: this.#selection.joueurs[c.id] ?? ""
           })),
-        repartition: this.#repartition("heros")
+        repartition: this.#repartition("heros"),
+        get aAppliquer() {
+          return this.repartition.some((r) => r.enAttente);
+        }
       }
     };
   }
@@ -244,7 +258,7 @@ export class PhaseInitiative extends HandlebarsApplicationMixin(ApplicationV2) {
       if (rangs.join(" ") === (fractionnement[id] ?? []).join(" ")) return;
 
       fractionnement[id] = rangs;
-      await this.combat.appliquerAttribution(groupe, null, fractionnement);
+      await this.combat.enregistrerRepartition(groupe, { fractionnement });
     }
   }
 
@@ -362,7 +376,10 @@ export class PhaseInitiative extends HandlebarsApplicationMixin(ApplicationV2) {
     this.render();
   }
 
-  /** Alloue ou reprend un Succès du pot d'un camp. */
+  /**
+   * Alloue ou reprend un Succès du pot. La répartition est enregistrée, mais
+   * rien n'est écrit dans la barre de combat avant « Appliquer les rangs ».
+   */
   static async #onAjusterPart(event, target) {
     const combat = this.combat;
     const id = target.dataset.combattant;
@@ -371,22 +388,41 @@ export class PhaseInitiative extends HandlebarsApplicationMixin(ApplicationV2) {
 
     const attribution = { ...combat.pot(groupe).attribution };
     const actuelle = Number(attribution[id] ?? 0);
+    const visee = actuelle + delta;
 
+    if (visee < 0) {
+      signalerLimite(0, actuelle + combat.potRestant(groupe));
+      return;
+    }
     if (delta > 0 && combat.potRestant(groupe) < delta) {
-      ui.notifications.warn(game.i18n.localize("HEXAGON.Initiative.PotVide"));
+      ui.notifications.error(game.i18n.localize("HEXAGON.Initiative.PotVide"));
       return;
     }
 
-    attribution[id] = Math.max(actuelle + delta, 0);
-    await combat.appliquerAttribution(groupe, attribution);
+    attribution[id] = visee;
+    await combat.enregistrerRepartition(groupe, { attribution });
     this.render();
   }
 
   /** Réécrit les rangs à partir de la répartition en cours. */
   static async #onAppliquer(event, target) {
     const groupe = target.dataset.groupe ?? "heros";
-    await this.combat.appliquerAttribution(groupe, this.combat.pot(groupe).attribution);
+    await this.combat.appliquerAttribution(groupe);
     ui.notifications.info(game.i18n.localize("HEXAGON.Initiative.RangsAppliques"));
+    this.render();
+  }
+
+  /** Remet l'initiative à blanc, après confirmation : l'opération est destructive. */
+  static async #onReinitialiser() {
+    const confirme = await foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.localize("HEXAGON.Initiative.Reinitialiser") },
+      content: `<p>${game.i18n.localize("HEXAGON.Initiative.ReinitialiserQuestion")}</p>`
+    });
+    if (!confirme) return;
+
+    await this.combat.reinitialiserInitiative();
+    this.#selection = { leaderId: null, leader: {}, joueurs: {} };
+    ui.notifications.info(game.i18n.localize("HEXAGON.Initiative.Reinitialisee"));
     this.render();
   }
 

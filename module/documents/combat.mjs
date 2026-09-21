@@ -143,8 +143,7 @@ export class HexagonCombat extends Combat {
 
   /** Fixe la composition de l'équipe pour la scène d'action. */
   async definirEquipe(ids) {
-    await this.majPot("heros", { equipe: [...ids] });
-    return this.appliquerAttribution("heros", this.pot("heros").attribution);
+    return this.majPot("heros", { equipe: [...ids] });
   }
 
   get heros() {
@@ -188,8 +187,20 @@ export class HexagonCombat extends Combat {
     return [...fraction].sort((a, b) => b - a);
   }
 
+  /**
+   * Met à jour le pot d'un groupe.
+   *
+   * setFlag fusionne récursivement : écrire « attribution: {} » laisserait les
+   * anciennes parts en place. On recompose donc le pot complet — les clés
+   * fournies remplacent intégralement les anciennes — puis on l'écrit après
+   * avoir effacé la version précédente.
+   */
   async majPot(groupe, modifications) {
-    return this.setFlag(HEXAGON.id, GROUPES[groupe].flag, modifications);
+    const cle = GROUPES[groupe].flag;
+    const actuel = this.getFlag(HEXAGON.id, cle) ?? {};
+    const complet = foundry.utils.deepClone({ ...actuel, ...modifications });
+    await this.unsetFlag(HEXAGON.id, cle);
+    return this.setFlag(HEXAGON.id, cle, complet);
   }
 
   /** Enregistre le résultat d'une main. Écrase toute phase précédente du groupe. */
@@ -205,7 +216,7 @@ export class HexagonCombat extends Combat {
       clos: false,
       tour: this.round
     });
-    return this.appliquerAttribution(groupe, {}, {});
+    return this;
   }
 
   /* -------------------------------------------- */
@@ -217,17 +228,51 @@ export class HexagonCombat extends Combat {
    * plusieurs rangs occupe autant de lignes dans la barre de combat, toutes
    * rattachées à son jeton ; les lignes du tour précédent sont effacées avant.
    */
-  async appliquerAttribution(groupe, attribution = null, fractionnement = null) {
-    const modifications = {};
+  /**
+   * Enregistre une répartition — parts du pot, fractionnements — sans rien
+   * écrire dans la barre de combat. Les rangs ne sont reportés qu'au moment où
+   * le MJ applique explicitement.
+   */
+  async enregistrerRepartition(groupe, { attribution = null, fractionnement = null } = {}) {
+    const modifications = { clos: false, tour: this.round };
     if (attribution) modifications.attribution = attribution;
     if (fractionnement) modifications.fractionnement = fractionnement;
-    if (attribution || fractionnement) modifications.clos = false;
-    if (Object.keys(modifications).length) {
-      modifications.tour = this.round;
-      await this.majPot(groupe, modifications);
-    }
+    return this.majPot(groupe, modifications);
+  }
 
+  /** Reporte dans la barre de combat les rangs issus de la répartition enregistrée. */
+  async appliquerAttribution(groupe) {
     return this.#ecrireRangs(groupe);
+  }
+
+  /**
+   * Remet l'initiative des héros à blanc : pot vidé, main oubliée, répartition
+   * effacée, rangs supprimés de la barre de combat. La composition de l'équipe
+   * est conservée, elle ne relève pas de l'initiative.
+   */
+  async reinitialiserInitiative() {
+    await this.majPot("heros", {
+      leaderId: null,
+      main: {},
+      des: 0,
+      total: 0,
+      consomme: 0,
+      attribution: {},
+      fractionnement: {},
+      clos: false,
+      tour: this.round
+    });
+
+    const presents = this.herosPresents;
+    const ids = new Set(presents.map((c) => c.id));
+    const supplementaires = this.combatants
+      .filter((c) => c.estRangSupplementaire && ids.has(c.getFlag(HEXAGON.id, "rangSupplementaire")))
+      .map((c) => c.id);
+    if (supplementaires.length) await this.deleteEmbeddedDocuments("Combatant", supplementaires);
+
+    const effacements = presents.map((c) => ({ _id: c.id, initiative: null }));
+    if (effacements.length) await this.updateEmbeddedDocuments("Combatant", effacements);
+    return this;
   }
 
   /**
@@ -314,10 +359,10 @@ export class HexagonCombat extends Combat {
     for (const groupe of ["heros", "figurants"]) {
       if (!parGroupe[groupe].length) continue;
 
-      const pot = this.pot(groupe);
-      if (groupe === "heros" || pot.total > 0) {
+      // Le dé de la barre de combat ne remplace pas la phase d'initiative : les
+      // rangs des héros ne s'écrivent que depuis « Appliquer les rangs ».
+      if (groupe === "heros") {
         ui.notifications.info(game.i18n.localize("HEXAGON.Initiative.PassezParLaPhase"));
-        await this.#ecrireRangs(groupe);
         continue;
       }
 

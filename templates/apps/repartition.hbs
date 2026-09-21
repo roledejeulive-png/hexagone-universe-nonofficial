@@ -23,6 +23,7 @@
       </span>
       <span class="phase-rang" title="{{localize 'HEXAGON.Initiative.RangCalcul'}}">
         {{localize "HEXAGON.Initiative.Rang"}} <b>{{this.rang}}</b>
+        {{#if this.enAttente}}<i class="phase-attente" title="{{localize 'HEXAGON.Initiative.EnAttenteAide'}}">{{localize "HEXAGON.Initiative.EnAttente"}}</i>{{/if}}
       </span>
 
       {{#if ../fractionnementAutorise}}
@@ -40,7 +41,7 @@
   </ul>
 
   <div class="phase-actions">
-    <button type="button" class="hex-bouton discret" data-action="appliquer" data-groupe="{{bloc.groupe}}">
+    <button type="button" class="hex-bouton {{#if bloc.aAppliquer}}primaire{{else}}discret{{/if}}" data-action="appliquer" data-groupe="{{bloc.groupe}}">
       {{localize "HEXAGON.Initiative.Appliquer"}}
     </button>
     <button type="button" class="hex-bouton discret" data-action="cloturerTour" data-groupe="{{bloc.groupe}}">

@@ -158,5 +158,11 @@
   "HEXAGON.Initiative.Equipe": "Équipe des joueurs",
   "HEXAGON.Initiative.EquipeAide": "Cochez les personnages qui prennent part à la scène d'action. Seuls eux entrent dans la main collective et reçoivent une part du pot.",
   "HEXAGON.Initiative.AucunHeros": "Aucun personnage joueur dans la rencontre.",
-  "HEXAGON.Initiative.Erreur": "La phase d'initiative a rencontré une erreur : le détail est dans la console (F12)."
+  "HEXAGON.Initiative.Erreur": "La phase d'initiative a rencontré une erreur : le détail est dans la console (F12).",
+  "HEXAGON.Limite.Hors": "Valeur hors limites : elle doit rester entre {min} et {max}.",
+  "HEXAGON.Initiative.Reinitialiser": "Réinitialiser l'initiative",
+  "HEXAGON.Initiative.ReinitialiserQuestion": "Vider le pot, oublier la main et supprimer les rangs des héros dans la barre de combat ? La composition de l'équipe est conservée.",
+  "HEXAGON.Initiative.Reinitialisee": "Initiative réinitialisée.",
+  "HEXAGON.Initiative.EnAttente": "à appliquer",
+  "HEXAGON.Initiative.EnAttenteAide": "Ce rang diffère de celui affiché dans la barre de combat."
 }

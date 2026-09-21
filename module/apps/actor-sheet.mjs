@@ -1,5 +1,5 @@
 import { HEXAGON } from "../config.mjs";
-import { ns } from "../helpers.mjs";
+import { ns, signalerLimite } from "../helpers.mjs";
 import { construirePool } from "../dice/pool.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -192,14 +192,18 @@ export class HexagonHerosSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
     if (!(champ in this.#audace)) return;
 
     const delta = Number(target.dataset.delta ?? 1);
-    const vise = Math.max(this.#audace[champ] + delta, 0);
+    const vise = this.#audace[champ] + delta;
+    if (vise < 0) {
+      signalerLimite(0, this.actor.audaceDisponible);
+      return;
+    }
     const projection = { ...this.#audace, [champ]: vise };
     const cout =
       projection.desAchetes * HEXAGON.audace.coutDeAchete +
       projection.desSecurises * HEXAGON.audace.coutDeSecurise;
 
     if (delta > 0 && cout > this.actor.audaceDisponible) {
-      ui.notifications.warn(game.i18n.localize("HEXAGON.Avertissement.AudaceEpuisee"));
+      ui.notifications.error(game.i18n.localize("HEXAGON.Avertissement.AudaceEpuisee"));
       return;
     }
 
@@ -274,8 +278,12 @@ export class HexagonHerosSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
     const delta = Number(target.dataset.delta ?? 1);
     const actuel = Number(foundry.utils.getProperty(item, champ) ?? 0);
     const plafond = champ === "system.rang" ? HEXAGON.rangMaxDe(item.type) : HEXAGON.rangMax.equipement;
-    const valeur = Math.clamp(actuel + delta, 0, plafond);
-    if (valeur === actuel) return;
+    const visee = actuel + delta;
+    if (visee < 0 || visee > plafond) {
+      signalerLimite(0, plafond);
+      return;
+    }
+    const valeur = visee;
 
     // Un Talent ramené à 0 perd ses spécialités : on nettoie la sélection en cours.
     if (champ === "system.rang" && valeur === 0) this.#purgerSpecialites(item.id);
@@ -293,8 +301,12 @@ export class HexagonHerosSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
     const delta = Number(target.dataset.delta ?? 1);
     const actuel = Number(foundry.utils.getProperty(this.actor, champ) ?? 0);
     const plafond = Number(foundry.utils.getProperty(this.actor, champ.replace(/\.value$/, ".max")) ?? Infinity);
-    const valeur = Math.clamp(actuel + delta, 0, plafond);
-    if (valeur === actuel) return;
+    const visee = actuel + delta;
+    if (visee < 0 || visee > plafond) {
+      signalerLimite(0, plafond);
+      return;
+    }
+    const valeur = visee;
     await this.actor.update({ [champ]: valeur });
   }
 }
@@ -336,8 +348,12 @@ export class HexagonFigurantSheet extends HandlebarsApplicationMixin(ActorSheetV
     const delta = Number(target.dataset.delta ?? 1);
     const actuel = Number(foundry.utils.getProperty(this.actor, champ) ?? 0);
     const plafond = Number(foundry.utils.getProperty(this.actor, champ.replace(/\.value$/, ".max")) ?? Infinity);
-    const valeur = Math.clamp(actuel + delta, 0, plafond);
-    if (valeur === actuel) return;
+    const visee = actuel + delta;
+    if (visee < 0 || visee > plafond) {
+      signalerLimite(0, plafond);
+      return;
+    }
+    const valeur = visee;
     await this.actor.update({ [champ]: valeur });
   }
 

@@ -54,3 +54,11 @@ export function registerHandlebarsHelpers() {
   /** Classe de l'onglet actif. */
   Handlebars.registerHelper("hexActiveTab", (courant, cible) => (courant === cible ? "active" : ""));
 }
+
+/**
+ * Signale un chevron qui pousserait une valeur hors de ses bornes. Préféré à
+ * un refus silencieux : sans message, un clic sans effet passe pour un bug.
+ */
+export function signalerLimite(min, max) {
+  ui.notifications.error(game.i18n.format("HEXAGON.Limite.Hors", { min, max }));
+}

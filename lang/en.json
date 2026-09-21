@@ -158,5 +158,11 @@
   "HEXAGON.Initiative.Equipe": "Player team",
   "HEXAGON.Initiative.EquipeAide": "Tick the characters taking part in the action scene. Only they join the collective hand and receive a share of the pool.",
   "HEXAGON.Initiative.AucunHeros": "No player character in this encounter.",
-  "HEXAGON.Initiative.Erreur": "The initiative phase hit an error: details are in the console (F12)."
+  "HEXAGON.Initiative.Erreur": "The initiative phase hit an error: details are in the console (F12).",
+  "HEXAGON.Limite.Hors": "Value out of bounds: it must stay between {min} and {max}.",
+  "HEXAGON.Initiative.Reinitialiser": "Reset initiative",
+  "HEXAGON.Initiative.ReinitialiserQuestion": "Empty the pool, forget the hand and remove the heroes' ranks from the combat tracker? Team membership is kept.",
+  "HEXAGON.Initiative.Reinitialisee": "Initiative reset.",
+  "HEXAGON.Initiative.EnAttente": "pending",
+  "HEXAGON.Initiative.EnAttenteAide": "This rank differs from the one shown in the combat tracker."
 }
