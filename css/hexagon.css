@@ -14,6 +14,8 @@
   --bleu: #1f5fa8;
   --jaune: #f0b429;
   --plomb: #7a7666;
+  /* Couleur de texte : noir partout, y compris les libellés secondaires. */
+  --texte: #000000;
 
   --display: "Haettenschweiler", "Arial Narrow", "Oswald", Impact, sans-serif;
   --corps: "Signika", "Segoe UI", system-ui, sans-serif;
@@ -23,7 +25,7 @@
   background-color: var(--journal);
   background-image: radial-gradient(var(--journal-creux) 1px, transparent 1px);
   background-size: 6px 6px;
-  color: var(--encre);
+  color: var(--texte);
   font-family: var(--corps);
   padding: 0;
   overflow-y: auto;
@@ -35,7 +37,7 @@
   background: rgba(255, 255, 255, 0.55);
   border: 1px solid var(--plomb);
   border-radius: 0;
-  color: var(--encre);
+  color: var(--texte);
   font-family: var(--corps);
   padding: 0.2rem 0.35rem;
 }
@@ -123,7 +125,48 @@
   font-size: 0.72rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--plomb);
+  color: var(--texte);
+}
+
+/* Jauges vitales en tête de fiche : une ligne compacte sous l'identité,
+   pour les avoir sous les yeux quel que soit l'onglet ouvert. */
+.hexagon .hex-jauges-entete {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.2rem;
+  margin-top: 0.5rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgba(20, 26, 46, 0.15);
+}
+
+.hexagon .hex-jauge-entete {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.hexagon .hex-jauge-entete > span:first-child {
+  font-family: var(--display);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--texte);
+}
+
+.hexagon .hex-jauge-entete input {
+  width: 3.2rem;
+  text-align: center;
+}
+
+.hexagon .hex-jauge-entete.xp {
+  margin-left: auto;
+}
+
+.hexagon .hex-xp-reste {
+  min-width: 2rem;
+  text-align: center;
+  font-family: var(--display);
+  font-size: 1.1rem;
 }
 
 /* ---------- Console de pool (élément signature) ---------- */
@@ -237,6 +280,18 @@
   filter: brightness(1.08);
 }
 
+.hexagon .objet-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.4rem;
+  padding: 0 0.85rem 0.85rem;
+}
+
+.hexagon .hex-bouton.danger {
+  border-color: var(--rouge);
+  color: var(--rouge);
+}
+
 /* ---------- Onglets ---------- */
 
 .hexagon .hex-onglets {
@@ -255,11 +310,11 @@
   border-bottom: 4px solid transparent;
   padding: 0.3rem 0.6rem;
   cursor: pointer;
-  color: var(--plomb);
+  color: var(--texte);
 }
 
 .hexagon .hex-onglet.active {
-  color: var(--encre);
+  color: var(--texte);
   border-bottom-color: var(--rouge);
 }
 
@@ -304,8 +359,10 @@
 .hexagon .hex-trait {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.25rem 0.3rem;
+  gap: 0.4rem;
+  padding: 0 0.3rem;
+  line-height: 1.2;
+  min-height: 26px;
 }
 
 .hexagon .hex-trait:nth-child(odd) {
@@ -317,16 +374,16 @@
 }
 
 .hexagon .hex-chip {
-  width: 34px;
-  height: 38px;
+  width: 26px;
+  height: 29px;
   flex: 0 0 auto;
   clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
   background: var(--journal-creux);
   border: 0;
   cursor: pointer;
   font-family: var(--display);
-  font-size: 1.2rem;
-  color: var(--encre);
+  font-size: 1rem;
+  color: var(--texte);
   padding: 0;
 }
 
@@ -343,7 +400,7 @@
 
 .hexagon .hex-trait-nom {
   flex: 1;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .hexagon .hex-cout {
@@ -355,7 +412,7 @@
   background: none;
   border: 0;
   cursor: pointer;
-  color: var(--plomb);
+  color: var(--texte);
   padding: 0 0.15rem;
   width: auto;
 }
@@ -365,28 +422,30 @@
 }
 
 .hexagon .hex-vide {
-  color: var(--plomb);
+  color: var(--texte);
   font-style: italic;
   margin: 0.2rem 0;
 }
 
 /* Réglage direct du rang depuis la liste : deux chevrons compacts,
    volontairement discrets pour ne pas concurrencer le jeton hexagonal. */
+/* Les chevrons sont côte à côte : empilés, ils doublaient la hauteur de ligne. */
 .hexagon .hex-pas {
   display: flex;
-  flex-direction: column;
-  margin-left: -0.35rem;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.1rem;
 }
 
 .hexagon .hex-pas button {
   width: 18px;
-  height: 15px;
+  height: 18px;
   padding: 0;
   line-height: 1;
   font-size: 0.7rem;
   background: transparent;
   border: 0;
-  color: var(--plomb);
+  color: var(--texte);
   cursor: pointer;
 }
 
@@ -400,14 +459,14 @@
   flex-basis: 100%;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem;
-  padding: 0.15rem 0 0.2rem 3.1rem;
+  gap: 0.2rem;
+  padding: 0 0 0.15rem 2.2rem;
 }
 
 .hexagon .hex-spec {
   border: 1px dashed var(--plomb);
   background: transparent;
-  color: var(--plomb);
+  color: var(--texte);
   font-size: 0.72rem;
   letter-spacing: 0.04em;
   padding: 0.05rem 0.4rem;
@@ -444,6 +503,90 @@
 .hexagon .hex-alerte {
   font-size: 0.72rem;
   color: var(--rouge);
+}
+
+/* Dépense d'Audace : deux compteurs dans la console de jet, en retrait
+   typographique pour rester secondaires face à la jauge de dés. */
+.hexagon .pool-audace {
+  grid-column: 2 / -1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.7rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid rgba(234, 227, 210, 0.2);
+  font-size: 0.78rem;
+  color: rgba(234, 227, 210, 0.85);
+}
+
+.hexagon .audace-titre {
+  font-family: var(--display);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+}
+
+.hexagon .audace-titre em {
+  font-style: normal;
+  color: var(--jaune);
+  font-size: 1rem;
+}
+
+.hexagon .audace-ligne {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.hexagon .audace-ligne button {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  line-height: 1;
+  border: 1px solid rgba(234, 227, 210, 0.4);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.hexagon .audace-ligne button:hover {
+  border-color: var(--jaune);
+  color: var(--jaune);
+}
+
+.hexagon .audace-ligne b {
+  min-width: 1ch;
+  text-align: center;
+  color: var(--jaune);
+}
+
+.hexagon .audace-ligne label {
+  opacity: 0.8;
+}
+
+.hexagon .audace-cout {
+  margin-left: auto;
+  color: var(--jaune);
+  font-weight: 700;
+}
+
+.hexagon .pool-audace.insuffisante .audace-cout {
+  color: #ff8c8c;
+}
+
+.hexagon .pool-tag.achat {
+  background: rgba(31, 95, 168, 0.35);
+}
+
+.hexagon-carte .de.auto.securise {
+  background: #1f5fa8;
+  color: #fff;
+}
+
+.hexagon-carte .carte-audace {
+  margin: 0.2rem 0 0;
+  font-size: 0.78rem;
+  opacity: 0.8;
 }
 
 /* ---------- État, notes ---------- */
@@ -508,6 +651,420 @@
 
 .hexagon .hex-figurant .hex-jauges {
   grid-template-columns: repeat(3, 1fr);
+}
+
+/* ---------- Phase d'initiative ---------- */
+
+.hexagon.phase-initiative .window-content {
+  padding: 0.85rem;
+}
+
+.hexagon .phase h2 {
+  font-family: var(--display);
+  font-size: 1.05rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--encre);
+  margin: 0 0 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.hexagon .phase h2 em {
+  font-style: normal;
+  color: var(--rouge);
+}
+
+.hexagon .phase-membres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.9rem;
+  margin-bottom: 0.6rem;
+}
+
+.hexagon .phase-membre {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.hexagon .phase-aide {
+  font-size: 0.8rem;
+  color: var(--texte);
+  margin: 0.4rem 0;
+}
+
+.hexagon .phase-leader,
+.hexagon .phase-emplacements label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.hexagon .phase-leader span,
+.hexagon .phase-emplacements span {
+  font-family: var(--display);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--texte);
+}
+
+.hexagon .phase-emplacements {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.hexagon .phase-lancer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 0.7rem;
+}
+
+.hexagon .phase-des {
+  font-family: var(--display);
+  font-size: 1.3rem;
+}
+
+.hexagon .phase-adverse {
+  margin-top: 1.2rem;
+  padding-top: 0.6rem;
+  border-top: 2px solid var(--encre);
+}
+
+.hexagon .phase-champ {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.hexagon .phase-champ span {
+  font-family: var(--display);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--texte);
+}
+
+.hexagon .phase-champ input {
+  width: 4.5rem;
+  text-align: center;
+}
+
+.hexagon .phase-effectif {
+  font-size: 0.8rem;
+  color: var(--texte);
+  margin-right: auto;
+}
+
+.hexagon .phase-clos {
+  color: var(--rouge);
+}
+
+.hexagon .phase-lancer {
+  justify-content: flex-start;
+}
+
+.hexagon .phase-pot {
+  margin-top: 1.2rem;
+}
+
+.hexagon .phase-repartition {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.hexagon .phase-repartition li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.25rem 0.3rem;
+}
+
+.hexagon .phase-repartition li:nth-child(odd) {
+  background: rgba(20, 26, 46, 0.04);
+}
+
+.hexagon .phase-nom {
+  flex: 1;
+}
+
+.hexagon .phase-compteur {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.hexagon .phase-compteur button {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  line-height: 1;
+  border: 1px solid var(--plomb);
+  background: transparent;
+  cursor: pointer;
+}
+
+.hexagon .phase-compteur button:hover {
+  border-color: var(--rouge);
+  color: var(--rouge);
+}
+
+.hexagon .phase-rang {
+  font-size: 0.8rem;
+  color: var(--texte);
+  min-width: 5.5rem;
+  text-align: right;
+}
+
+.hexagon .phase-rang b {
+  color: var(--encre);
+  font-size: 1rem;
+}
+
+.hexagon .phase-fraction {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 8rem;
+}
+
+.hexagon .phase-fraction input {
+  width: 100%;
+  text-align: center;
+}
+
+.hexagon .phase-erreur {
+  font-size: 0.7rem;
+  color: var(--rouge);
+  font-style: normal;
+}
+
+.hexagon .phase-rangs {
+  font-size: 0.7rem;
+  color: var(--texte);
+  font-style: normal;
+}
+
+.hexagon .phase-rangs b {
+  display: inline-block;
+  margin-left: 0.25rem;
+  padding: 0 0.3rem;
+  background: var(--jaune);
+  color: var(--encre);
+}
+
+.hexagon .phase-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  margin-top: 0.7rem;
+}
+
+.hexagon-carte.initiative .carte-main {
+  margin: 0.25rem 0;
+  font-size: 0.8rem;
+}
+
+/* Bouton posé dans la barre de combat */
+button.hexagon-phase {
+  width: 100%;
+  margin: 0.25rem 0;
+  font-family: "Haettenschweiler", "Arial Narrow", Impact, sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ---------- Hommes de main ---------- */
+
+.hexagon .hdm {
+  padding-bottom: 0.85rem;
+}
+
+.hexagon .hdm-chiffres {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.85rem;
+}
+
+.hexagon .hdm-chiffres.vaincu {
+  opacity: 0.55;
+}
+
+.hexagon .hdm-menace {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.hexagon .hdm-menace > span,
+.hexagon .hdm-opposition > span,
+.hexagon .hdm-resolution span,
+.hexagon .hdm-actions span {
+  font-family: var(--display);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--texte);
+}
+
+.hexagon .hdm-menace input {
+  width: 3.2rem;
+  text-align: center;
+}
+
+.hexagon .hdm-opposition {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.hexagon .hdm-opposition b {
+  font-family: var(--display);
+  font-size: 2.4rem;
+  line-height: 1;
+  color: var(--rouge);
+}
+
+.hexagon .hdm-opposition em,
+.hexagon .hdm-resolution em,
+.hexagon .hdm-actions em {
+  font-style: normal;
+  font-size: 0.75rem;
+  color: var(--texte);
+  flex: 1;
+}
+
+.hexagon .hdm-etat {
+  margin: 0 0.85rem;
+  padding: 0.4rem 0.6rem;
+  background: rgba(200, 30, 36, 0.12);
+  border-left: 3px solid var(--rouge);
+  font-size: 0.85rem;
+}
+
+.hexagon .hdm-resolution,
+.hexagon .hdm-actions {
+  padding: 0 0.85rem;
+}
+
+.hexagon .hdm-ligne,
+.hexagon .hdm-actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.hexagon .hdm-ligne label,
+.hexagon .hdm-actions label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.hexagon .hdm-ligne input {
+  width: 4rem;
+  text-align: center;
+}
+
+.hexagon-carte .bilan-score i {
+  font-size: 0.8rem;
+  padding: 0 0.15rem;
+}
+
+.hexagon .hdm-label {
+  font-family: var(--display);
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.hexagon .hdm-valeur {
+  font-family: var(--display);
+  font-size: 3rem;
+  line-height: 1;
+  color: var(--jaune);
+}
+
+.hexagon .hdm-reglage {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.hexagon .hdm-reglage input {
+  width: 3.4rem;
+  text-align: center;
+  font-family: var(--display);
+  font-size: 1.8rem;
+}
+
+.hexagon .hdm-reglage button {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  line-height: 1;
+  border: 1px solid var(--plomb);
+  background: transparent;
+  cursor: pointer;
+}
+
+.hexagon .hdm-aide {
+  font-size: 0.72rem;
+  opacity: 0.75;
+}
+
+.hexagon .hdm-ligne .hdm-aide {
+  flex-basis: 100%;
+  color: var(--texte);
+}
+
+.hexagon .sc .hdm-opposition .sc-opposition {
+  width: 4rem;
+  text-align: center;
+  font-family: var(--display);
+  font-size: 2rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 0;
+}
+
+.hexagon .sc-renforts {
+  padding: 0 0.85rem;
+}
+
+.hexagon .sc-renforts h2 {
+  font-family: var(--display);
+  font-size: 1.05rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--plomb);
+  margin: 0 0 0.4rem;
+}
+
+.hexagon .sc-bilan {
+  list-style: none;
+  margin: 0.4rem 0 0.8rem;
+  padding: 0.4rem 0.6rem;
+  background: rgba(20, 26, 46, 0.06);
+  font-size: 0.85rem;
+}
+
+.hexagon .sc-bilan b {
+  margin-left: 0.2rem;
+}
+
+.hexagon .sc-bilan em {
+  margin-left: 0.4rem;
+  font-style: normal;
+  color: var(--rouge);
 }
 
 /* ---------- Carte de chat ---------- */
@@ -576,6 +1133,32 @@
   font-family: "Haettenschweiler", "Arial Narrow", Impact, sans-serif;
   font-size: 1.9rem;
   line-height: 1;
+}
+
+/* Réussites sur dés lancés : le résultat se lit d'un coup d'œil, le détail
+   vient en dessous. */
+.hexagon-carte .bilan-score {
+  font-family: "Haettenschweiler", "Arial Narrow", Impact, sans-serif;
+  font-size: 2.1rem;
+  line-height: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 0.15rem;
+}
+
+.hexagon-carte .bilan-score i {
+  font-style: normal;
+  opacity: 0.4;
+}
+
+.hexagon-carte .bilan-score .sur {
+  font-size: 1.4rem;
+  opacity: 0.55;
+}
+
+.hexagon-carte .carte-explication {
+  margin: 0.15rem 0 0;
+  font-size: 0.82rem;
 }
 
 .hexagon-carte .bilan-verdict {

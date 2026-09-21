@@ -1,0 +1,39 @@
+<div class="hdm sc">
+  <header class="hex-header compact">
+    <img class="hex-portrait" src="{{actor.img}}" data-action="editImage" data-edit="img" alt="{{actor.name}}" />
+    <div class="hex-identite">
+      <input class="hex-nom" type="text" name="name" value="{{actor.name}}" {{#unless editable}}disabled{{/unless}} />
+      <label>
+        <span>{{localize "HEXAGON.SecondCouteau.Role"}}</span>
+        <input type="text" name="system.role" value="{{system.role}}" placeholder="{{localize 'HEXAGON.SecondCouteau.RoleAide'}}" {{#unless editable}}disabled{{/unless}} />
+      </label>
+    </div>
+  </header>
+
+  <section class="hdm-chiffres {{#if system.vaincu}}vaincu{{/if}}">
+    <div class="hdm-menace">
+      <span class="hdm-label">{{localize "HEXAGON.HommesDeMain.Menace"}}</span>
+      <span class="hdm-reglage">
+        <button type="button" data-action="ajusterMenace" data-delta="-1" title="{{localize 'HEXAGON.Valeur.Diminuer'}}">−</button>
+        <input type="number" name="system.menace" value="{{system.menace}}" min="0" max="{{menaceMax}}" {{#unless editable}}disabled{{/unless}} />
+        <button type="button" data-action="ajusterMenace" data-delta="1" title="{{localize 'HEXAGON.Valeur.Augmenter'}}">+</button>
+      </span>
+      <span class="hdm-aide">{{localize "HEXAGON.SecondCouteau.MenaceAide"}}</span>
+    </div>
+
+    <div class="hdm-opposition">
+      <span class="hdm-label">{{localize "HEXAGON.HommesDeMain.Opposition"}}</span>
+      <input class="sc-opposition" type="number" name="system.opposition" value="{{system.opposition}}" min="0" max="{{oppositionMax}}" {{#unless editable}}disabled{{/unless}} />
+      <span class="hdm-aide">{{localize "HEXAGON.SecondCouteau.OppositionAide"}}</span>
+    </div>
+  </section>
+
+  {{#if system.vaincu}}
+  <p class="hdm-etat">{{localize "HEXAGON.SecondCouteau.Vaincu"}}</p>
+  {{/if}}
+
+  <label class="hex-notes">
+    <span>{{localize "HEXAGON.Champ.Notes"}}</span>
+    <textarea name="system.notes" rows="6" {{#unless editable}}disabled{{/unless}}>{{system.notes}}</textarea>
+  </label>
+</div>

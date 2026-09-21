@@ -17,6 +17,42 @@
         <input type="text" name="system.identite.equipe" value="{{system.identite.equipe}}" {{#unless editable}}disabled{{/unless}} />
       </label>
     </div>
+
+    <div class="hex-jauges-entete">
+      <label class="hex-jauge-entete">
+        <span>{{localize "HEXAGON.Champ.Energie"}}</span>
+        <span class="hex-paire">
+          <input type="number" name="system.energie.value" value="{{system.energie.value}}" {{#unless editable}}disabled{{/unless}} />
+          <span class="hex-pas">
+            <button type="button" data-action="ajusterActeur" data-champ="system.energie.value" data-delta="1" title="{{localize 'HEXAGON.Valeur.Augmenter'}}">▴</button>
+            <button type="button" data-action="ajusterActeur" data-champ="system.energie.value" data-delta="-1" title="{{localize 'HEXAGON.Valeur.Diminuer'}}">▾</button>
+          </span>
+          <em>/</em>
+          <input type="number" name="system.energie.max" value="{{system.energie.max}}" {{#unless editable}}disabled{{/unless}} />
+        </span>
+      </label>
+      <label class="hex-jauge-entete">
+        <span>{{localize "HEXAGON.Champ.Audace"}}</span>
+        <span class="hex-paire">
+          <input type="number" name="system.audace.value" value="{{system.audace.value}}" {{#unless editable}}disabled{{/unless}} />
+          <span class="hex-pas">
+            <button type="button" data-action="ajusterActeur" data-champ="system.audace.value" data-delta="1" title="{{localize 'HEXAGON.Valeur.Augmenter'}}">▴</button>
+            <button type="button" data-action="ajusterActeur" data-champ="system.audace.value" data-delta="-1" title="{{localize 'HEXAGON.Valeur.Diminuer'}}">▾</button>
+          </span>
+          <em>/</em>
+          <input type="number" name="system.audace.max" value="{{system.audace.max}}" {{#unless editable}}disabled{{/unless}} />
+        </span>
+      </label>
+      <label class="hex-jauge-entete xp">
+        <span>{{localize "HEXAGON.Champ.Xp"}}</span>
+        <span class="hex-paire">
+          <input type="number" name="system.xp.gagnee" value="{{system.xp.gagnee}}" title="{{localize 'HEXAGON.Champ.XpGagnee'}}" {{#unless editable}}disabled{{/unless}} />
+          <em>−</em>
+          <input type="number" name="system.xp.depensee" value="{{system.xp.depensee}}" title="{{localize 'HEXAGON.Champ.XpDepensee'}}" {{#unless editable}}disabled{{/unless}} />
+          <b class="hex-xp-reste" title="{{localize 'HEXAGON.Champ.XpDisponible'}}">{{system.xp.disponible}}</b>
+        </span>
+      </label>
+    </div>
   </div>
 
   <section class="pool-console" aria-label="{{localize 'HEXAGON.Pool.Titre'}}">
@@ -49,12 +85,39 @@
       </button>
     </div>
 
+    <div class="pool-audace {{#if pool.audaceInsuffisante}}insuffisante{{/if}}">
+      <span class="audace-titre">
+        {{localize "HEXAGON.Audace.Titre"}}
+        <em>{{pool.audaceDisponible}}</em>
+      </span>
+
+      <span class="audace-ligne">
+        <button type="button" data-action="ajusterAudace" data-champ="desAchetes" data-delta="-1" title="{{localize 'HEXAGON.Valeur.Diminuer'}}">−</button>
+        <b>{{pool.desAchetes}}</b>
+        <button type="button" data-action="ajusterAudace" data-champ="desAchetes" data-delta="1" title="{{localize 'HEXAGON.Valeur.Augmenter'}}">+</button>
+        <label>{{localize "HEXAGON.Audace.AjouterDe"}}</label>
+      </span>
+
+      <span class="audace-ligne">
+        <button type="button" data-action="ajusterAudace" data-champ="desSecurises" data-delta="-1" title="{{localize 'HEXAGON.Valeur.Diminuer'}}">−</button>
+        <b>{{pool.desSecurises}}</b>
+        <button type="button" data-action="ajusterAudace" data-champ="desSecurises" data-delta="1" title="{{localize 'HEXAGON.Valeur.Augmenter'}}">+</button>
+        <label>{{localize "HEXAGON.Audace.SecuriserDe"}}</label>
+      </span>
+
+      {{#if pool.coutAudace}}
+      <span class="audace-cout">−{{pool.coutAudace}}</span>
+      {{/if}}
+    </div>
+
     <p class="pool-detail">
       {{#if pool.vide}}
         {{localize "HEXAGON.Pool.Aide"}}
       {{else}}
         {{#each pool.detail}}<span class="pool-tag">{{this.nom}} {{this.rang}}</span>{{/each}}
         {{#each pool.specialites}}<span class="pool-tag spec">★ {{this}}</span>{{/each}}
+        {{#if pool.desSecurises}}<span class="pool-tag spec">★ {{localize "HEXAGON.Audace.Securises"}} {{pool.desSecurises}}</span>{{/if}}
+        {{#if pool.desAchetes}}<span class="pool-tag achat">+{{pool.desAchetes}} {{localize "HEXAGON.Audace.Achetes"}}</span>{{/if}}
       {{/if}}
     </p>
   </section>

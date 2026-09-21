@@ -18,9 +18,7 @@ export class TraitData extends foundry.abstract.TypeDataModel {
         min: 0,
         max: this.rangMax
       }),
-      description: new f.HTMLField({ required: true, initial: "" }),
-      /** Coché par défaut dans le sélecteur de pool (utile pour un Talent signature). */
-      favori: new f.BooleanField({ required: true, initial: false })
+      description: new f.HTMLField({ required: true, initial: "" })
     };
   }
 

@@ -51,13 +51,6 @@
       <span>{{localize "HEXAGON.Champ.Porte"}}</span>
     </label>
     {{/if}}
-
-    {{#if estTrait}}
-    <label class="hex-jauge case">
-      <input type="checkbox" name="system.favori" {{#if system.favori}}checked{{/if}} {{#unless editable}}disabled{{/unless}} />
-      <span>{{localize "HEXAGON.Champ.Favori"}}</span>
-    </label>
-    {{/if}}
   </div>
 
   <label class="hex-notes">
@@ -72,11 +65,14 @@
   </label>
   {{/if}}
 
-  {{#if estTrait}}
-  <div class="pool-actions">
+  <div class="objet-actions">
+    {{#if estTrait}}
     <button type="button" class="hex-bouton primaire" data-action="lancerTrait">
       {{localize "HEXAGON.Jet.Seul"}}
     </button>
+    {{/if}}
+    <button type="button" class="hex-bouton discret danger" data-action="supprimerObjet">
+      {{localize "HEXAGON.Item.Supprimer"}}
+    </button>
   </div>
-  {{/if}}
 </div>

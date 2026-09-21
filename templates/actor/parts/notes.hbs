@@ -1,6 +1,11 @@
 <section class="hex-panneau {{#if actif}}actif{{/if}}" data-panneau="notes">
   <label class="hex-notes">
-    <span>{{localize "HEXAGON.Champ.Notes"}}</span>
-    <textarea name="system.notes" rows="16" placeholder="{{localize 'HEXAGON.Champ.NotesAide'}}" {{#unless editable}}disabled{{/unless}}>{{system.notes}}</textarea>
+    <span>{{localize "HEXAGON.Champ.NotesPersonnelles"}}</span>
+    <textarea name="system.notes" rows="10" placeholder="{{localize 'HEXAGON.Champ.NotesAide'}}" {{#unless editable}}disabled{{/unless}}>{{system.notes}}</textarea>
+  </label>
+
+  <label class="hex-notes">
+    <span>{{localize "HEXAGON.Champ.Contacts"}}</span>
+    <textarea name="system.contacts" rows="8" placeholder="{{localize 'HEXAGON.Champ.ContactsAide'}}" {{#unless editable}}disabled{{/unless}}>{{system.contacts}}</textarea>
   </label>
 </section>

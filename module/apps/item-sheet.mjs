@@ -11,7 +11,8 @@ export class HexagonItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     window: { resizable: true },
     form: { submitOnChange: true, closeOnSubmit: false },
     actions: {
-      lancerTrait: HexagonItemSheet.#onLancerTrait
+      lancerTrait: HexagonItemSheet.#onLancerTrait,
+      supprimerObjet: HexagonItemSheet.#onSupprimer
     }
   };
 
@@ -40,6 +41,17 @@ export class HexagonItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
 
   static async #onLancerTrait() {
     await this.item.lancer();
+  }
+
+  /** Suppression depuis la fiche, l'action ayant quitté la ligne de la liste. */
+  static async #onSupprimer() {
+    const confirme = await foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.localize("HEXAGON.Item.SupprimerTitre") },
+      content: `<p>${game.i18n.format("HEXAGON.Item.SupprimerQuestion", { nom: this.item.name })}</p>`
+    });
+    if (!confirme) return;
+    await this.item.delete();
+    await this.close();
   }
 }
 

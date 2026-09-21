@@ -22,9 +22,7 @@
         <span class="hex-trait-nom">{{this.name}}</span>
         {{#if this.cout}}<span class="hex-cout">−{{this.cout}} {{localize "HEXAGON.Champ.EnergieCourt"}}</span>{{/if}}
         <span class="hex-trait-outils">
-          <button type="button" data-action="lancerTrait" title="{{localize 'HEXAGON.Jet.Seul'}}">⚄</button>
           <button type="button" data-action="editerItem" title="{{localize 'HEXAGON.Item.Editer'}}">✎</button>
-          <button type="button" data-action="supprimerItem" title="{{localize 'HEXAGON.Item.Supprimer'}}">✕</button>
         </span>
         {{#if this.specialites.length}}
         <span class="hex-specialites">

@@ -28,12 +28,29 @@ export function preloadTemplates() {
     `${HEXAGON.path}/templates/actor/parts/etat.hbs`,
     `${HEXAGON.path}/templates/actor/parts/notes.hbs`,
     `${HEXAGON.path}/templates/actor/figurant.hbs`,
+    `${HEXAGON.path}/templates/actor/hommes-de-main.hbs`,
+    `${HEXAGON.path}/templates/actor/second-couteau.hbs`,
+    `${HEXAGON.path}/templates/actor/hommes-de-main.hbs`,
+    `${HEXAGON.path}/templates/actor/second-couteau.hbs`,
     `${HEXAGON.path}/templates/item/item-sheet.hbs`,
-    `${HEXAGON.path}/templates/chat/pool.hbs`
+    `${HEXAGON.path}/templates/apps/phase-initiative.hbs`,
+    `${HEXAGON.path}/templates/apps/repartition.hbs`,
+    `${HEXAGON.path}/templates/chat/pool.hbs`,
+    `${HEXAGON.path}/templates/chat/initiative.hbs`
   ]);
 }
 
 export function registerHandlebarsHelpers() {
+  /** Comparaison stricte, pour marquer l'option sélectionnée d'une liste. */
+  Handlebars.registerHelper("hexEgal", (a, b) => a === b);
+
+  /** Répète un bloc n fois, pour figurer n dés acquis identiques. */
+  Handlebars.registerHelper("hexRepeter", function (n, options) {
+    let sortie = "";
+    for (let i = 0; i < Number(n ?? 0); i++) sortie += options.fn(this);
+    return sortie;
+  });
+
   /** Classe de l'onglet actif. */
   Handlebars.registerHelper("hexActiveTab", (courant, cible) => (courant === cible ? "active" : ""));
 }

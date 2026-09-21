@@ -14,6 +14,8 @@ export class HexagonHerosSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
   #selection = new Set();
   /** @type {Set<string>} clés « itemId|nom de spécialité » engagées. */
   #specialites = new Set();
+  /** Dépense d'Audace préparée pour le prochain jet, remise à zéro après. */
+  #audace = { desAchetes: 0, desSecurises: 0 };
 
   static DEFAULT_OPTIONS = {
     classes: ["hexagon", "sheet", "acteur", "heros"],
@@ -25,6 +27,7 @@ export class HexagonHerosSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
       toggleTrait: HexagonHerosSheet.#onToggleTrait,
       toggleSpecialite: HexagonHerosSheet.#onToggleSpecialite,
       viderPool: HexagonHerosSheet.#onViderPool,
+      ajusterAudace: HexagonHerosSheet.#onAjusterAudace,
       lancerPool: HexagonHerosSheet.#onLancerPool,
       creerItem: HexagonHerosSheet.#onCreerItem,
       editerItem: HexagonHerosSheet.#onEditerItem,
@@ -54,7 +57,12 @@ export class HexagonHerosSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
     const actor = this.actor;
     const selection = [...this.#selection].map((id) => actor.items.get(id)).filter(Boolean);
     const specialites = this.#specialitesActives();
-    const pool = construirePool(selection, 0, specialites.length);
+    const pool = construirePool(selection, {
+      modificateur: 0,
+      specialites: specialites.length,
+      desAchetes: this.#audace.desAchetes,
+      desSecurises: this.#audace.desSecurises
+    });
 
     return Object.assign(context, {
       actor,
@@ -85,7 +93,12 @@ export class HexagonHerosSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
         vide: this.#selection.size === 0,
         detail: pool.detail,
         specialites,
-        auto: specialites.length * HEXAGON.specialite.reussitesOffertes
+        auto: pool.auto,
+        desAchetes: this.#audace.desAchetes,
+        desSecurises: this.#audace.desSecurises,
+        coutAudace: pool.coutAudace,
+        audaceDisponible: actor.audaceDisponible,
+        audaceInsuffisante: pool.coutAudace > actor.audaceDisponible
       },
       difficultes: Object.entries(HEXAGON.difficultes).map(([valeur, cle]) => ({
         valeur: Number(valeur),
@@ -166,6 +179,31 @@ export class HexagonHerosSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
   static #onViderPool() {
     this.#selection.clear();
     this.#specialites.clear();
+    this.#audace = { desAchetes: 0, desSecurises: 0 };
+    this.render();
+  }
+
+  /**
+   * Prépare une dépense d'Audace. La seule limite est l'Audace restante du
+   * personnage : on ne peut pas préparer un jet qu'on ne pourra pas payer.
+   */
+  static #onAjusterAudace(event, target) {
+    const champ = target.dataset.champ;
+    if (!(champ in this.#audace)) return;
+
+    const delta = Number(target.dataset.delta ?? 1);
+    const vise = Math.max(this.#audace[champ] + delta, 0);
+    const projection = { ...this.#audace, [champ]: vise };
+    const cout =
+      projection.desAchetes * HEXAGON.audace.coutDeAchete +
+      projection.desSecurises * HEXAGON.audace.coutDeSecurise;
+
+    if (delta > 0 && cout > this.actor.audaceDisponible) {
+      ui.notifications.warn(game.i18n.localize("HEXAGON.Avertissement.AudaceEpuisee"));
+      return;
+    }
+
+    this.#audace = projection;
     this.render();
   }
 
@@ -173,12 +211,20 @@ export class HexagonHerosSheet extends HandlebarsApplicationMixin(ActorSheetV2) 
     const form = target.closest(".pool-console");
     const modificateur = Number(form?.querySelector("[data-pool='modificateur']")?.value ?? 0);
     const difficulte = Number(form?.querySelector("[data-pool='difficulte']")?.value ?? 1);
-    await this.actor.lancerTraits({
+    const jet = await this.actor.lancerTraits({
       traitIds: [...this.#selection],
       specialites: this.#specialitesActives(),
+      desAchetes: this.#audace.desAchetes,
+      desSecurises: this.#audace.desSecurises,
       modificateur,
       difficulte
     });
+
+    // La dépense est ponctuelle : elle ne doit pas se reporter sur le jet suivant.
+    if (jet) {
+      this.#audace = { desAchetes: 0, desSecurises: 0 };
+      this.render();
+    }
   }
 
   static async #onCreerItem(event, target) {
@@ -319,5 +365,10 @@ export function registerActorSheets() {
     types: ["figurant"],
     makeDefault: true,
     label: "HEXAGON.Feuille.Figurant"
+  });
+  Actors.registerSheet(HEXAGON.id, HexagonHommesDeMainSheet, {
+    types: ["hommesDeMain"],
+    makeDefault: true,
+    label: "HEXAGON.Feuille.HommesDeMain"
   });
 }

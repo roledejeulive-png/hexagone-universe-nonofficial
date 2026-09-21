@@ -11,25 +11,34 @@
     {{#each specialites}}
     <li class="de auto" title="{{localize 'HEXAGON.Carte.Specialite'}} : {{this}}">★</li>
     {{/each}}
+    {{#hexRepeter desSecurises}}
+    <li class="de auto securise" title="{{localize 'HEXAGON.Audace.Securises'}}">★</li>
+    {{/hexRepeter}}
   </ol>
 
   <div class="carte-bilan">
-    <span class="bilan-chiffre">{{reussites}}</span>
-    <span class="bilan-texte">
-      {{localize "HEXAGON.Carte.Reussites"}}
-      <em>{{localize "HEXAGON.Carte.Contre"}} {{difficulte}}</em>
+    <span class="bilan-score">
+      <b>{{reussites}}</b><i>/</i><b class="sur">{{des}}</b>
     </span>
     <span class="bilan-verdict">
       {{#if succes}}{{localize "HEXAGON.Carte.Succes"}}{{else}}{{localize "HEXAGON.Carte.Echec"}}{{/if}}
-      {{#if marge}}<em>({{localize "HEXAGON.Carte.Marge"}} {{marge}})</em>{{/if}}
     </span>
   </div>
+
+  <p class="carte-explication">
+    {{localize "HEXAGON.Carte.Reussites"}} {{localize "HEXAGON.Carte.Contre"}} {{difficulte}}
+    {{#if marge}}<em>({{localize "HEXAGON.Carte.Marge"}} {{marge}})</em>{{/if}}
+  </p>
 
   {{#if auto}}
   <p class="carte-auto">
     {{reussitesDes}} {{localize "HEXAGON.Carte.SurLesDes"}} + {{auto}} {{localize "HEXAGON.Carte.Auto"}}
     {{#each specialites}}<span class="pool-tag">{{this}}</span>{{/each}}
   </p>
+  {{/if}}
+
+  {{#if desAchetes}}
+  <p class="carte-audace">{{localize "HEXAGON.Audace.Achetes"}} : {{desAchetes}}</p>
   {{/if}}
 
   {{#if eclats}}
