@@ -1,0 +1,34 @@
+<div class="hexagon-carte initiative">
+  <div class="carte-entete">
+    <span class="carte-label">{{titre}}</span>
+    <span class="carte-pool">{{des}}d6 · {{localize "HEXAGON.Carte.Seuil"}} {{seuil}}+</span>
+  </div>
+
+  {{#if leader}}
+  <p class="carte-main">
+    <strong>{{leader}}</strong>
+    {{#each emplacements}}<span class="pool-tag">{{this.label}} : {{this.nom}}</span>{{/each}}
+  </p>
+  {{/if}}
+
+  {{#if contributions.length}}
+  <p class="carte-main">
+    {{#each contributions}}<span class="pool-tag">{{this.nom}} — {{this.trait}} {{this.rang}}</span>{{/each}}
+  </p>
+  {{/if}}
+
+  <ol class="carte-des">
+    {{#each resultats}}
+    <li class="de {{#if this.reussite}}reussite{{/if}}">{{this.valeur}}</li>
+    {{/each}}
+  </ol>
+
+  <div class="carte-bilan">
+    <span class="bilan-score">
+      <b>{{total}}</b><i>/</i><b class="sur">{{des}}</b>
+    </span>
+    <span class="bilan-verdict">{{localize "HEXAGON.Initiative.SuccesAuPot"}}</span>
+  </div>
+
+  <p class="carte-detail">{{localize "HEXAGON.Initiative.RappelAutomatique"}}</p>
+</div>

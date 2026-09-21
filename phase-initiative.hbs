@@ -1,0 +1,79 @@
+<div class="phase">
+  <section class="phase-equipe">
+    <h2>{{localize "HEXAGON.Initiative.Equipe"}}</h2>
+    <p class="phase-aide">{{localize "HEXAGON.Initiative.EquipeAide"}}</p>
+
+    <div class="phase-membres">
+      {{#each presents}}
+      <label class="phase-membre">
+        <input type="checkbox" name="equipe.{{this.id}}" {{#if this.membre}}checked{{/if}} />
+        <span>{{this.nom}}</span>
+      </label>
+      {{else}}
+      <p class="phase-aide">{{localize "HEXAGON.Initiative.AucunHeros"}}</p>
+      {{/each}}
+    </div>
+  </section>
+
+  <section class="phase-main">
+    <h2>{{localize "HEXAGON.Initiative.Main"}}</h2>
+
+    <label class="phase-leader">
+      <span>{{localize "HEXAGON.Initiative.Leader"}}</span>
+      <select name="leaderId">
+        <option value="">—</option>
+        {{#each pj.candidats}}
+        <option value="{{this.id}}" {{#if this.choisi}}selected{{/if}}>{{this.nom}}</option>
+        {{/each}}
+      </select>
+    </label>
+
+    {{#if pj.leader}}
+    <p class="phase-aide">{{localize "HEXAGON.Initiative.AideLeader"}}</p>
+    <div class="phase-emplacements">
+      {{#each pj.leader.emplacements}}
+      <label>
+        <span>{{this.label}}</span>
+        <select name="leader.{{this.type}}">
+          <option value="">—</option>
+          {{#each this.options}}
+          <option value="{{this.id}}" {{#if (hexEgal this.id ../choisi)}}selected{{/if}}>{{this.nom}}</option>
+          {{/each}}
+        </select>
+      </label>
+      {{/each}}
+    </div>
+
+    {{#if pj.autres.length}}
+    <p class="phase-aide">{{localize "HEXAGON.Initiative.AideJoueurs"}}</p>
+    <div class="phase-emplacements">
+      {{#each pj.autres}}
+      <label>
+        <span>{{this.nom}}</span>
+        <select name="joueur.{{this.id}}">
+          <option value="">—</option>
+          {{#each this.options}}
+          <option value="{{this.id}}" {{#if (hexEgal this.id ../choisi)}}selected{{/if}}>{{this.nom}}</option>
+          {{/each}}
+        </select>
+      </label>
+      {{/each}}
+    </div>
+    {{/if}}
+
+    <div class="phase-lancer">
+      <span class="phase-des">{{pj.desDeLaMain}} {{localize "HEXAGON.Pool.Des"}}</span>
+      <button type="button" class="hex-bouton primaire" data-action="lancerPhase">
+        {{localize "HEXAGON.Initiative.Lancer"}}
+      </button>
+    </div>
+    {{else}}
+    <p class="phase-aide">{{localize "HEXAGON.Initiative.ChoisirLeader"}}</p>
+    {{/if}}
+  </section>
+
+  {{#if pj.phaseFaite}}
+  {{> "systems/hexagon-universe/templates/apps/repartition.hbs" bloc=pj fractionnementAutorise=fractionnementAutorise}}
+  {{/if}}
+
+</div>

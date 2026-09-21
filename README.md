@@ -1,10 +1,10 @@
 # Hexagon Universe — système Foundry VTT (non officiel)
 
-Moteur de jeu pour parties de super-héros à pools de d6 : Traits notés (Motivations, Talents, Pouvoirs), on cumule les rangs, on lance autant de d6, on compte les réussites.
+Moteur de jeu pour parties de super-héros à pools de d6 : Traits notés (Motivations, Talents, Pouvoirs), on cumule les rangs, on lance autant de d6, on compte les réussites (4, 5 ou 6).
 
 **Non officiel.** Ce dépôt ne contient aucun texte de règles, aucun personnage, aucun visuel de la licence Hexagon (Lug / Hexagon Comics / Rivière Blanche / Les XII Singes). Il fournit des structures de données et une interface. Pour jouer, il faut le livre.
 
-**Branche `foundry-v13`** — build pour Foundry VTT v13 (vérifié sur la build 351). La branche `main` porte le build v12, fonctionnellement identique. Les deux partagent l'id `hexagon-universe` : ils ne peuvent pas cohabiter sur une même installation.
+**Branche `foundry-v13`** — vérifié sur Foundry VTT 14.368 (Version 14 Stable 10), compatible à partir de la v13. La branche `main` porte le build v12, fonctionnellement identique. Les deux partagent l'id `hexagon-universe` : ils ne peuvent pas cohabiter sur une même installation.
 
 ---
 
@@ -51,12 +51,17 @@ git push origin v13-0.1.0
 
 | Élément | Détail |
 | --- | --- |
-| Acteurs | `heros` (identité, Énergie, Audace, XP) et `figurant` (Énergie, pool par défaut, effectif) |
+| Acteurs | `heros` (identité, Énergie, Audace, XP), `figurant` (Énergie, pool par défaut, effectif) et `hommesDeMain` (groupe : Menace et Opposition) |
+| Hommes de main | groupe traité comme une entité unique ; l'Opposition sert de seuil d'attaque, de seuil de défense et de rang d'initiative, et suit la Menace |
 | Objets | `motivation`, `talent` (+ spécialités), `pouvoir` (+ coût en énergie, limites), `equipement` (+ dés apportés) |
 | Rangs | Motivations 3, Talents 3, Pouvoirs 10, dés d'équipement 0 à 3 |
-| Jets | sélection de Traits sur la feuille → pool → `Nd6`, réussites sur 3+, difficulté sur dix crans |
+| Jets | sélection de Traits sur la feuille → pool → `Nd6`, réussites sur 4+, difficulté sur dix crans |
 | Spécialités | portées par les Talents : −1 dé, +1 réussite acquise, cumulables, inactives si le Talent est au rang 0 |
-| Automatisme | le coût en énergie des Pouvoirs engagés est déduit au moment du jet |
+| Audace | deux dépenses au moment du jet, limitées seulement par l'Audace restante : acheter un dé, ou sécuriser un dé (il quitte le pool et devient une réussite acquise) |
+| Initiative | phase dédiée : main collective du groupe, pot commun de Succès réparti tour par tour, un Succès automatique par PJ |
+| Actions multiples | un PJ peut fractionner son rang en plusieurs rangs tous différents dont la somme égale le rang de départ ; il occupe alors autant de lignes dans la barre de combat |
+| Adversaires | phase d'initiative distincte, réservée au MJ : pot propre, même répartition et même fractionnement. Sans pot adverse, les figurants retombent sur un jet par camp |
+| Automatisme | Audace et coût en énergie des Pouvoirs prélevés en une écriture au moment du jet |
 | API macro | `game.hexagon.lancerPool({ des: 6, difficulte: 2, label: "Esquive" })` |
 
 Sur la feuille de héros, chaque Trait porte un jeton hexagonal affichant son rang : cliquer dessus l'engage dans le pool, la jauge en haut affiche le total de dés. Les chevrons ▴▾ règlent les rangs et les jauges sans ouvrir de fenêtre.
@@ -65,11 +70,15 @@ Sur la feuille de héros, chaque Trait porte un jeton hexagonal affichant son ra
 
 Les valeurs chiffrées sont regroupées dans `module/config.mjs` :
 
-- `dice.seuilReussite` — actuellement 3.
+- `dice.seuilReussite` — actuellement 4 : un dé réussit sur 4, 5 ou 6.
 - `dice.poolMinimum` — ce qui se passe quand le pool tombe à zéro (actuellement : 1 dé). Tant qu'il vaut 1, une spécialité engagée sur un très petit pool ne coûte rien de réel.
 - `difficultes` — l'échelle en nombre de réussites, dix crans par défaut.
 - `rangMax` — plafond par type de Trait.
 - `specialite` — le troc dé contre réussite.
+- `hommesDeMain` — bornes de Menace et d'Opposition, plafond de fusion.
+- `audace` — coût de chaque dépense et garde-fou par jet.
+- `initiative` — composition de la main, Succès automatique par PJ, consommation du pot, autorisation du fractionnement.
+- `combat.formuleInitiative` et `combat.camps` — jet des figurants et libellés des camps.
 - `HerosData` dans `module/data/actor-data.mjs` — l'Énergie sert à la fois de jauge vitale et de carburant aux Pouvoirs ; l'Audace est une ressource dramatique laissée libre d'usage.
 
 ## Limites connues
