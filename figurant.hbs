@@ -1,0 +1,62 @@
+<div class="hex-figurant">
+  <header class="hex-header compact">
+    <img class="hex-portrait" src="{{actor.img}}" data-action="editImage" data-edit="img" alt="{{actor.name}}" />
+    <div class="hex-identite">
+      <input class="hex-nom" type="text" name="name" value="{{actor.name}}" {{#unless editable}}disabled{{/unless}} />
+      <label>
+        <span>{{localize "HEXAGON.Champ.Role"}}</span>
+        <input type="text" name="system.role" value="{{system.role}}" placeholder="{{localize 'HEXAGON.Champ.RoleAide'}}" {{#unless editable}}disabled{{/unless}} />
+      </label>
+    </div>
+  </header>
+
+  <div class="hex-jauges">
+    <label class="hex-jauge">
+      <span>{{localize "HEXAGON.Champ.Energie"}}</span>
+      <span class="hex-paire">
+        <input type="number" name="system.energie.value" value="{{system.energie.value}}" {{#unless editable}}disabled{{/unless}} />
+        <span class="hex-pas">
+          <button type="button" data-action="ajusterActeur" data-champ="system.energie.value" data-delta="1" title="{{localize 'HEXAGON.Valeur.Augmenter'}}">▴</button>
+          <button type="button" data-action="ajusterActeur" data-champ="system.energie.value" data-delta="-1" title="{{localize 'HEXAGON.Valeur.Diminuer'}}">▾</button>
+        </span>
+        <em>/</em>
+        <input type="number" name="system.energie.max" value="{{system.energie.max}}" {{#unless editable}}disabled{{/unless}} />
+      </span>
+    </label>
+    <label class="hex-jauge">
+      <span>{{localize "HEXAGON.Champ.Effectif"}}</span>
+      <input type="number" name="system.effectif" value="{{system.effectif}}" min="1" {{#unless editable}}disabled{{/unless}} />
+    </label>
+    <label class="hex-jauge">
+      <span>{{localize "HEXAGON.Champ.PoolDefaut"}}</span>
+      <input type="number" name="system.poolDefaut" value="{{system.poolDefaut}}" min="0" {{#unless editable}}disabled{{/unless}} />
+    </label>
+  </div>
+
+  <section class="pool-console">
+    <div class="pool-hexagone">
+      <span class="pool-chiffre">{{system.poolDefaut}}</span>
+      <span class="pool-unite">{{localize "HEXAGON.Pool.Des"}}</span>
+    </div>
+    <div class="pool-reglages">
+      <label class="pool-champ">
+        <span>{{localize "HEXAGON.Pool.Difficulte"}}</span>
+        <select data-pool="difficulte">
+          {{#each difficultes}}
+          <option value="{{this.valeur}}">{{this.valeur}} — {{this.label}}</option>
+          {{/each}}
+        </select>
+      </label>
+    </div>
+    <div class="pool-actions">
+      <button type="button" class="hex-bouton primaire" data-action="lancerDefaut">
+        {{localize "HEXAGON.Pool.Lancer"}}
+      </button>
+    </div>
+  </section>
+
+  <label class="hex-notes">
+    <span>{{localize "HEXAGON.Champ.Notes"}}</span>
+    <textarea name="system.notes" rows="8" {{#unless editable}}disabled{{/unless}}>{{system.notes}}</textarea>
+  </label>
+</div>
