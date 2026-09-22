@@ -6,7 +6,7 @@ import { ns } from "../helpers.mjs";
  * `defineSchema` lit via `this` — donc sans redéfinir le schéma entier.
  */
 export class TraitData extends foundry.abstract.TypeDataModel {
-  static rangMax = 5;
+  static rangMax = 6;
 
   static defineSchema() {
     const f = ns().fields;
@@ -41,9 +41,9 @@ export class MotivationData extends TraitData {
   }
 }
 
-/** Talent : rang 0 à 3, avec d'éventuelles spécialités. */
+/** Talent : rang 0 à 6, avec d'éventuelles spécialités. */
 export class TalentData extends TraitData {
-  static rangMax = 3;
+  static rangMax = 6;
 
   static defineSchema() {
     const f = ns().fields;
