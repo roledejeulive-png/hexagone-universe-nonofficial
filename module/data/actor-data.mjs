@@ -78,20 +78,12 @@ export class HommesDeMainData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
     const f = ns().fields;
     return {
-      menace: new f.SchemaField({
-        value: new f.NumberField({
-          required: true,
-          integer: true,
-          initial: 6,
-          min: 0,
-          max: HEXAGON.hommesDeMain.menaceMax
-        }),
-        max: new f.NumberField({
-          required: true,
-          integer: true,
-          initial: HEXAGON.hommesDeMain.menaceMax,
-          min: 1
-        })
+      menace: new f.NumberField({
+        required: true,
+        integer: true,
+        initial: 6,
+        min: 0,
+        max: HEXAGON.hommesDeMain.menaceMax
       }),
       role: new f.StringField({ required: true, initial: "" }),
       notes: new f.HTMLField({ required: true, initial: "" })
@@ -100,7 +92,7 @@ export class HommesDeMainData extends foundry.abstract.TypeDataModel {
 
   prepareDerivedData() {
     super.prepareDerivedData();
-    const menace = this.menace.value;
+    const menace = this.menace;
     this.opposition = menace <= 0
       ? 0
       : Math.min(Math.ceil(menace / 2), HEXAGON.hommesDeMain.oppositionMax);
