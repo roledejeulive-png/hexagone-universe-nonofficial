@@ -110,30 +110,33 @@ export class HommesDeMainData extends foundry.abstract.TypeDataModel {
 
 
 /**
- * Second couteau : PNJ marquant, allié ou adversaire, sans être majeur.
- *
- * L'Opposition est saisie librement par le MJ, contrairement aux hommes de
- * main où elle découle de la Menace. Le renfort est stocké comme un simple
- * identifiant : les valeurs du groupe soutenant sont lues au moment voulu,
- * pour rester justes quand sa Menace évolue de son côté.
+ * PNJ à Opposition libre : Menace et Opposition sont toutes deux posées par le
+ * MJ, l'une ne découlant pas de l'autre. Seules les bornes changent d'un type
+ * à l'autre ; chaque sous-classe désigne les siennes, que le schéma lit via
+ * `this` au moment de sa construction.
  */
-export class SecondCouteauData extends foundry.abstract.TypeDataModel {
+class PnjOppositionData extends foundry.abstract.TypeDataModel {
+  static get reglages() {
+    return HEXAGON.secondCouteau;
+  }
+
   static defineSchema() {
     const f = ns().fields;
+    const r = this.reglages;
     return {
       menace: new f.NumberField({
         required: true,
         integer: true,
-        initial: 6,
+        initial: r.menaceInitiale ?? 6,
         min: 0,
-        max: HEXAGON.secondCouteau.menaceMax
+        max: r.menaceMax
       }),
       opposition: new f.NumberField({
         required: true,
         integer: true,
-        initial: 3,
-        min: 0,
-        max: HEXAGON.secondCouteau.oppositionMax
+        initial: r.oppositionInitiale ?? 3,
+        min: r.oppositionMin ?? 0,
+        max: r.oppositionMax
       }),
       role: new f.StringField({ required: true, initial: "" }),
       notes: new f.HTMLField({ required: true, initial: "" })
@@ -144,5 +147,18 @@ export class SecondCouteauData extends foundry.abstract.TypeDataModel {
     super.prepareDerivedData();
     this.vaincu = this.menace <= 0;
   }
+}
 
+/** Second couteau : PNJ marquant, allié ou adversaire, sans être majeur. */
+export class SecondCouteauData extends PnjOppositionData {
+  static get reglages() {
+    return HEXAGON.secondCouteau;
+  }
+}
+
+/** Bras droit : Menace de 1 à 15, Opposition de 1 à 8. */
+export class BrasDroitData extends PnjOppositionData {
+  static get reglages() {
+    return HEXAGON.brasDroit;
+  }
 }

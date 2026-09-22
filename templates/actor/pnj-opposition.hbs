@@ -4,8 +4,8 @@
     <div class="hex-identite">
       <input class="hex-nom" type="text" name="name" value="{{actor.name}}" {{#unless editable}}disabled{{/unless}} />
       <label>
-        <span>{{localize "HEXAGON.HommesDeMain.Role"}}</span>
-        <input type="text" name="system.role" value="{{system.role}}" placeholder="{{localize 'HEXAGON.HommesDeMain.RoleAide'}}" {{#unless editable}}disabled{{/unless}} />
+        <span>{{localize libelles.role}}</span>
+        <input type="text" name="system.role" value="{{system.role}}" placeholder="{{localize libelles.roleAide}}" {{#unless editable}}disabled{{/unless}} />
       </label>
     </div>
   </header>
@@ -23,13 +23,15 @@
     <div class="hdm-opposition">
       <span class="hdm-label">{{localize "HEXAGON.HommesDeMain.Opposition"}}</span>
       <span class="hdm-reglage">
-        <span class="hdm-valeur">{{opposition}}</span>
+        <button type="button" data-action="ajusterOpposition" data-delta="-1" title="{{localize 'HEXAGON.Valeur.Diminuer'}}">−</button>
+        <input type="number" name="system.opposition" value="{{system.opposition}}" min="{{oppositionMin}}" max="{{oppositionMax}}" {{#unless editable}}disabled{{/unless}} />
+        <button type="button" data-action="ajusterOpposition" data-delta="1" title="{{localize 'HEXAGON.Valeur.Augmenter'}}">+</button>
       </span>
     </div>
   </section>
 
   {{#if system.vaincu}}
-  <p class="hdm-etat">{{localize "HEXAGON.HommesDeMain.Vaincu"}}</p>
+  <p class="hdm-etat">{{localize libelles.vaincu}}</p>
   {{/if}}
 
   <label class="hex-notes">

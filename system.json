@@ -1,8 +1,8 @@
 {
   "id": "hexagon-universe",
-  "title": "Hexagon Universe (non officiel) v0.2.8",
+  "title": "Hexagon Universe (non officiel)",
   "description": "Moteur de jeu non officiel pour parties de super-héros à la française : Traits notés, pools de d6 et comptage de réussites. Ne contient aucun texte de règles ni contenu sous licence.",
-  "version": "0.2.8",
+  "version": "0.3.0",
   "compatibility": {
     "minimum": "13",
     "verified": "14.368"
@@ -88,6 +88,6 @@
   "license": "LICENSE.txt",
   "url": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial",
   "manifest": "https://raw.githubusercontent.com/roledejeulive-png/hexagone-universe-nonofficial/main/system.json",
-  "download": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial/archive/refs/tags/v0.2.8.zip",
+  "download": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial/archive/refs/tags/v0.3.0.zip",
   "bugs": "https://github.com/roledejeulive-png/hexagone-universe-nonofficial/issues"
 }

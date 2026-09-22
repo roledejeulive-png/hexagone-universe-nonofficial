@@ -117,10 +117,9 @@ HEXAGON.combat = {
  * et c'est aussi son rang d'initiative.
  */
 HEXAGON.hommesDeMain = {
-  menaceMax: 12,
-  oppositionMax: 6,
-  /** Deux groupes qui fusionnent additionnent leur Menace, plafonnée ici. */
-  menaceMaxFusion: 10
+  menaceMax: 15,
+  /** Moitié de 15 arrondie au supérieur : le plafond découle de la Menace. */
+  oppositionMax: 8
 };
 
 /**
@@ -134,12 +133,21 @@ HEXAGON.hommesDeMain = {
  */
 HEXAGON.secondCouteau = {
   menaceMax: 12,
-  oppositionMax: 6,
-  /**
-   * En soutien, les pertes de Menace entament d'abord le groupe, le PNJ
-   * n'encaissant que le débordement. Passer à false pour l'inverse.
-   */
-  pertesSurSoutienDabord: true
+  oppositionMin: 0,
+  oppositionMax: 6
+};
+
+/**
+ * Bras droit : même principe que le second couteau — Menace et Opposition
+ * posées librement par le MJ — sur une échelle plus haute. La Menace se lit
+ * de 1 à 15, zéro restant réservé au PNJ vaincu.
+ */
+HEXAGON.brasDroit = {
+  menaceMax: 15,
+  oppositionMin: 1,
+  oppositionMax: 8,
+  menaceInitiale: 8,
+  oppositionInitiale: 4
 };
 
 /** Types d'Items qui comptent comme des Traits : ils entrent dans les pools. */

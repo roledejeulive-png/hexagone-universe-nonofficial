@@ -897,16 +897,22 @@ button.hexagon-phase {
   text-transform: uppercase;
 }
 
-/* ---------- Hommes de main ---------- */
+/* ---------- PNJ : hommes de main, seconds couteaux, bras droits ---------- */
 
 .hexagon .hdm {
   padding-bottom: 0.85rem;
 }
 
+/*
+ * Les deux valeurs occupent deux cases strictement identiques : même hauteur,
+ * même disposition, libellé en haut et valeur sur une ligne de hauteur fixe.
+ * C'est ce qui les aligne, que la valeur soit saisissable ou calculée.
+ */
 .hexagon .hdm-chiffres {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+  align-items: stretch;
   padding: 0.85rem;
 }
 
@@ -914,174 +920,100 @@ button.hexagon-phase {
   opacity: 0.55;
 }
 
-.hexagon .hdm-menace {
+.hexagon .hdm-menace,
+.hexagon .hdm-opposition {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
-}
-
-.hexagon .hdm-menace > span,
-.hexagon .hdm-opposition > span,
-.hexagon .hdm-resolution span,
-.hexagon .hdm-actions span {
-  font-family: var(--display);
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--texte);
-}
-
-.hexagon .hdm-menace input {
-  width: 3.2rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem;
+  border: 2px solid var(--encre);
   text-align: center;
 }
 
 .hexagon .hdm-opposition {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  flex: 1;
-}
-
-.hexagon .hdm-opposition b {
-  font-family: var(--display);
-  font-size: 2.4rem;
-  line-height: 1;
-  color: var(--rouge);
-}
-
-.hexagon .hdm-opposition em,
-.hexagon .hdm-resolution em,
-.hexagon .hdm-actions em {
-  font-style: normal;
-  font-size: 0.75rem;
-  color: var(--texte);
-  flex: 1;
-}
-
-.hexagon .hdm-etat {
-  margin: 0 0.85rem;
-  padding: 0.4rem 0.6rem;
-  background: rgba(200, 30, 36, 0.12);
-  border-left: 3px solid var(--rouge);
-  font-size: 0.85rem;
-}
-
-.hexagon .hdm-resolution,
-.hexagon .hdm-actions {
-  padding: 0 0.85rem;
-}
-
-.hexagon .hdm-ligne,
-.hexagon .hdm-actions {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.6rem;
-  margin-bottom: 0.5rem;
-}
-
-.hexagon .hdm-ligne label,
-.hexagon .hdm-actions label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.hexagon .hdm-ligne input {
-  width: 4rem;
-  text-align: center;
-}
-
-.hexagon-carte .bilan-score i {
-  font-size: 0.8rem;
-  padding: 0 0.15rem;
+  background: var(--encre);
 }
 
 .hexagon .hdm-label {
   font-family: var(--display);
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+  color: var(--texte);
 }
 
-.hexagon .hdm-valeur {
-  font-family: var(--display);
-  font-size: 3rem;
-  line-height: 1;
-  color: var(--jaune);
+.hexagon .hdm-opposition .hdm-label {
+  color: var(--journal);
 }
 
+/* Ligne de valeur : hauteur fixe, commune aux deux cases. */
 .hexagon .hdm-reglage {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  justify-content: center;
+  gap: 0.35rem;
+  height: 2.8rem;
 }
 
-.hexagon .hdm-reglage input {
-  width: 3.4rem;
+.hexagon .hdm-reglage input,
+.hexagon .hdm-valeur {
+  width: 3.6rem;
+  height: 2.8rem;
+  padding: 0;
   text-align: center;
   font-family: var(--display);
-  font-size: 1.8rem;
+  font-size: 1.9rem;
+  line-height: 2.8rem;
+  color: var(--texte);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--plomb);
+}
+
+/* Valeur calculée : même gabarit qu'un champ, sans en avoir l'apparence. */
+.hexagon .hdm-valeur {
+  display: inline-block;
+  background: transparent;
+  border-color: transparent;
+  color: var(--jaune);
 }
 
 .hexagon .hdm-reglage button {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   padding: 0;
   line-height: 1;
   border: 1px solid var(--plomb);
   background: transparent;
+  color: var(--texte);
   cursor: pointer;
 }
 
-.hexagon .hdm-aide {
-  font-size: 0.72rem;
-  opacity: 0.75;
+.hexagon .hdm-reglage button:hover {
+  border-color: var(--rouge);
+  color: var(--rouge);
 }
 
-.hexagon .hdm-ligne .hdm-aide {
-  flex-basis: 100%;
-  color: var(--texte);
+.hexagon .hdm-opposition .hdm-reglage button {
+  border-color: rgba(234, 227, 210, 0.5);
+  color: var(--journal);
 }
 
-.hexagon .sc .hdm-opposition .sc-opposition {
-  width: 4rem;
-  text-align: center;
+.hexagon .hdm-opposition .hdm-reglage button:hover {
+  border-color: var(--jaune);
+  color: var(--jaune);
+}
+
+.hexagon .hdm-etat {
+  margin: 0 0.85rem 0.6rem;
+  padding: 0.3rem 0.5rem;
+  background: var(--rouge);
+  color: #fff;
   font-family: var(--display);
-  font-size: 2rem;
-  background: rgba(255, 255, 255, 0.9);
-  border: 0;
-}
-
-.hexagon .sc-renforts {
-  padding: 0 0.85rem;
-}
-
-.hexagon .sc-renforts h2 {
-  font-family: var(--display);
-  font-size: 1.05rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  border-bottom: 1px solid var(--plomb);
-  margin: 0 0 0.4rem;
-}
-
-.hexagon .sc-bilan {
-  list-style: none;
-  margin: 0.4rem 0 0.8rem;
-  padding: 0.4rem 0.6rem;
-  background: rgba(20, 26, 46, 0.06);
-  font-size: 0.85rem;
-}
-
-.hexagon .sc-bilan b {
-  margin-left: 0.2rem;
-}
-
-.hexagon .sc-bilan em {
-  margin-left: 0.4rem;
-  font-style: normal;
-  color: var(--rouge);
+  text-align: center;
 }
 
 /* ---------- Carte de chat ---------- */

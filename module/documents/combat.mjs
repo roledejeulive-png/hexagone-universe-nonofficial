@@ -56,7 +56,7 @@ export class HexagonCombattant extends Combatant {
    */
   get groupe() {
     if (this.estHeros) return "heros";
-    if (["hommesDeMain", "secondCouteau"].includes(this.actor?.type)) return "pnj";
+    if (["hommesDeMain", "secondCouteau", "brasDroit"].includes(this.actor?.type)) return "pnj";
     return "figurants";
   }
 

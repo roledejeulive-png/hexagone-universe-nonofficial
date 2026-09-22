@@ -1,7 +1,7 @@
 import { HEXAGON } from "../config.mjs";
 import { signalerLimite } from "../helpers.mjs";
 
-const { HandlebarsApplicationMixin, DialogV2 } = foundry.applications.api;
+const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheetV2 } = foundry.applications.sheets;
 
 /**
@@ -17,8 +17,7 @@ export class HexagonHommesDeMainSheet extends HandlebarsApplicationMixin(ActorSh
     window: { resizable: true },
     form: { submitOnChange: true, closeOnSubmit: false },
     actions: {
-      ajusterMenace: HexagonHommesDeMainSheet.#onAjusterMenace,
-      fusionner: HexagonHommesDeMainSheet.#onFusionner
+      ajusterMenace: HexagonHommesDeMainSheet.#onAjusterMenace
     }
   };
 
@@ -38,8 +37,7 @@ export class HexagonHommesDeMainSheet extends HandlebarsApplicationMixin(ActorSh
       // dérivées n'ont pas encore été rafraîchies.
       opposition: HexagonHommesDeMainSheet.oppositionPour(system.menace),
       editable: this.isEditable,
-      menaceMax: HEXAGON.hommesDeMain.menaceMax,
-      menaceMaxFusion: HEXAGON.hommesDeMain.menaceMaxFusion
+      menaceMax: HEXAGON.hommesDeMain.menaceMax
     });
   }
 
@@ -68,57 +66,5 @@ export class HexagonHommesDeMainSheet extends HandlebarsApplicationMixin(ActorSh
 
     await this.actor.update({ "system.menace": valeur });
     await this.render();
-  }
-
-  /**
-   * Fusion de deux groupes : les Menaces s'additionnent, plafonnées, et le
-   * groupe absorbé tombe à zéro. L'Opposition suit d'elle-même.
-   */
-  static async #onFusionner() {
-    const candidats = game.actors.filter(
-      (a) => a.type === "hommesDeMain" && a.id !== this.actor.id && a.system.menace > 0
-    );
-
-    if (!candidats.length) {
-      ui.notifications.warn(game.i18n.localize("HEXAGON.HommesDeMain.AucunGroupe"));
-      return;
-    }
-
-    const options = candidats
-      .map((a) => `<option value="${a.id}">${a.name} — ${game.i18n.localize("HEXAGON.HommesDeMain.Menace")} ${a.system.menace}</option>`)
-      .join("");
-
-    const choix = await DialogV2.prompt({
-      window: { title: game.i18n.localize("HEXAGON.HommesDeMain.Fusionner") },
-      content: `<p>${game.i18n.localize("HEXAGON.HommesDeMain.FusionnerAide")}</p>
-        <select name="cible" style="width:100%">${options}</select>`,
-      ok: {
-        label: game.i18n.localize("HEXAGON.HommesDeMain.Fusionner"),
-        callback: (event, bouton) => bouton.form.elements.cible.value
-      },
-      rejectClose: false
-    });
-
-    if (!choix) return;
-
-    const absorbe = game.actors.get(choix);
-    if (!absorbe) return;
-
-    const somme = Math.min(
-      this.actor.system.menace + absorbe.system.menace,
-      HEXAGON.hommesDeMain.menaceMaxFusion
-    );
-
-    await this.actor.update({ "system.menace": somme });
-    await absorbe.update({ "system.menace": 0 });
-    await this.render();
-
-    ui.notifications.info(
-      game.i18n.format("HEXAGON.HommesDeMain.FusionFaite", {
-        groupe: this.actor.name,
-        absorbe: absorbe.name,
-        menace: somme
-      })
-    );
   }
 }

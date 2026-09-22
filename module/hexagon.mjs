@@ -1,6 +1,6 @@
 import { HEXAGON } from "./config.mjs";
 import { preloadTemplates, registerHandlebarsHelpers } from "./helpers.mjs";
-import { HerosData, FigurantData, HommesDeMainData, SecondCouteauData } from "./data/actor-data.mjs";
+import { HerosData, FigurantData, HommesDeMainData, SecondCouteauData, BrasDroitData } from "./data/actor-data.mjs";
 import { TalentData, MotivationData, PouvoirData, EquipementData } from "./data/item-data.mjs";
 import { HexagonActor } from "./documents/actor.mjs";
 import { HexagonItem } from "./documents/item.mjs";
@@ -8,7 +8,7 @@ import { HexagonCombat, HexagonCombattant } from "./documents/combat.mjs";
 import { ouvrirPhaseInitiative } from "./apps/phase-initiative.mjs";
 import { registerActorSheets } from "./apps/actor-sheet.mjs";
 import { HexagonHommesDeMainSheet } from "./apps/hommes-de-main-sheet.mjs";
-import { HexagonSecondCouteauSheet } from "./apps/second-couteau-sheet.mjs";
+import { HexagonSecondCouteauSheet, HexagonBrasDroitSheet } from "./apps/pnj-opposition-sheet.mjs";
 import { registerItemSheets } from "./apps/item-sheet.mjs";
 import { lancerPool, construirePool } from "./dice/pool.mjs";
 
@@ -32,7 +32,8 @@ Hooks.once("init", () => {
     heros: HerosData,
     figurant: FigurantData,
     hommesDeMain: HommesDeMainData,
-    secondCouteau: SecondCouteauData
+    secondCouteau: SecondCouteauData,
+    brasDroit: BrasDroitData
   });
   Object.assign(CONFIG.Item.dataModels, {
     motivation: MotivationData,
@@ -66,6 +67,11 @@ Hooks.once("init", () => {
       types: ["secondCouteau"],
       makeDefault: true,
       label: "HEXAGON.Feuille.SecondCouteau"
+    })],
+    ["bras droits", () => Acteurs.registerSheet(HEXAGON.id, HexagonBrasDroitSheet, {
+      types: ["brasDroit"],
+      makeDefault: true,
+      label: "HEXAGON.Feuille.BrasDroit"
     })],
     ["objets", () => registerItemSheets()]
   ];
@@ -125,7 +131,7 @@ Hooks.on("renderCombatTracker", (app, element) => {
  */
 Hooks.on("updateActor", async (acteur, changement) => {
   if (!game.user.isGM) return;
-  if (!["hommesDeMain", "secondCouteau"].includes(acteur.type)) return;
+  if (!["hommesDeMain", "secondCouteau", "brasDroit"].includes(acteur.type)) return;
   if (changement.system?.menace === undefined && changement.system?.opposition === undefined) return;
 
   for (const combat of game.combats) {
