@@ -20,7 +20,7 @@ HEXAGON.dice = {
   /** Taille de pool minimale quand aucun Trait ne s'applique. */
   poolMinimum: 1,
   /** Taille de pool maximale acceptée par le lanceur (garde-fou anti-faute de frappe). */
-  poolMaximum: 30
+  poolMaximum: 50
 };
 
 /** Difficultés proposées dans le dialogue de jet, en nombre de réussites à atteindre. */
@@ -29,12 +29,12 @@ HEXAGON.difficultes = {
   2: "HEXAGON.Difficulte.Simple",
   3: "HEXAGON.Difficulte.Delicate",
   4: "HEXAGON.Difficulte.Serieuse",
-  5: "HEXAGON.Difficulte.Ardue",
-  6: "HEXAGON.Difficulte.Redoutable",
-  7: "HEXAGON.Difficulte.Heroique",
-  8: "HEXAGON.Difficulte.Titanesque",
-  9: "HEXAGON.Difficulte.Legendaire",
-  10: "HEXAGON.Difficulte.Cosmique"
+  6: "HEXAGON.Difficulte.Ardue",
+  8: "HEXAGON.Difficulte.Redoutable",
+  10: "HEXAGON.Difficulte.Heroique",
+  11: "HEXAGON.Difficulte.Titanesque",
+  12: "HEXAGON.Difficulte.Legendaire",
+  15: "HEXAGON.Difficulte.Cosmique"
 };
 
 /**
@@ -132,9 +132,9 @@ HEXAGON.hommesDeMain = {
  * le PNJ gagne une action au rang d'initiative de l'Opposition du groupe.
  */
 HEXAGON.secondCouteau = {
-  menaceMax: 12,
+  menaceMax: 15,
   oppositionMin: 0,
-  oppositionMax: 6
+  oppositionMax: 8
 };
 
 /**
@@ -156,7 +156,7 @@ HEXAGON.typesTraits = ["motivation", "talent", "pouvoir"];
 /** Rang maximum, par type de Trait. */
 HEXAGON.rangMax = {
   motivation: 3,
-  talent: 3,
+  talent: 6,
   pouvoir: 10,
   /** Dés apportés par un équipement : de 0 à 3. */
   equipement: 3
