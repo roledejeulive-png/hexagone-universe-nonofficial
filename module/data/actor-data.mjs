@@ -85,6 +85,13 @@ export class HommesDeMainData extends foundry.abstract.TypeDataModel {
         min: 0,
         max: HEXAGON.hommesDeMain.menaceMax
       }),
+      opposition: new f.NumberField({
+        required: true,
+        integer: true,
+        initial: r.oppositionInitiale ?? 3,
+        min: r.oppositionMin ?? 0,
+        max: r.oppositionMax
+      }),
       role: new f.StringField({ required: true, initial: "" }),
       notes: new f.HTMLField({ required: true, initial: "" })
     };
